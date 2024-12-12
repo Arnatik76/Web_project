@@ -11,17 +11,21 @@
     <groupId>org.example</groupId>
     <artifactId>Mangaverse</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Mangastan</name>
-    <description>Mangastan</description>
+    <name>Mangaverse</name>
+    <description>Mangaverse</description>
     <url/>
     <licenses>
         <license/>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <id>Arnatik76</id>
+            <name>Arnat</name>
+            <email>jalgasarnat@gmail.com</email>
+        </developer>
     </developers>
     <scm>
-        <connection/>
+        <connection>scm:git:git://github.com/arnatik76/Web_project.git</connection>
         <developerConnection/>
         <tag/>
         <url/>
@@ -38,6 +42,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>3.4.0</version>
         </dependency>
 
         <dependency>
