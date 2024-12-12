@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.example</groupId>
-    <artifactId>Mangastan</artifactId>
+    <artifactId>Mangaverse</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Mangastan</name>
     <description>Mangastan</description>

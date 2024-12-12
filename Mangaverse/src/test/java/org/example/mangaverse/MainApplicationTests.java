@@ -1,4 +1,4 @@
-package org.example.mangastan;
+package org.example.mangaverse;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

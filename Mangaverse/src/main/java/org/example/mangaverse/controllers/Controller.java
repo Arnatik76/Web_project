@@ -1,4 +1,4 @@
-package org.example.mangastan.controllers;
+package org.example.mangaverse.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

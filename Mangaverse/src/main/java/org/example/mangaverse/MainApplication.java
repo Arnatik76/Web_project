@@ -1,4 +1,4 @@
-package org.example.mangastan;
+package org.example.mangaverse;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
