@@ -1,18 +1,35 @@
 package org.example.mangaverse.controllers;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.logging.Logger;
+import org.example.mangaverse.models.Manga;
+import org.example.mangaverse.services.MangaService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+
 @RestController
-@RequestMapping("/read")
+@RequestMapping("/api/manga")
 public class Controller {
 
-    @GetMapping("/stalker_3/a")
-    public String stalker_3_a() {
-        return "read";
+    private static final Logger logger = Logger.getLogger(Controller.class.getName());
+    private final MangaService ms;
+
+    public Controller(MangaService ms) {
+        this.ms = ms;
+    }
+
+    @GetMapping("/{mangaId}")
+    public ResponseEntity<Manga> getManga(@PathVariable Long mangaId) {
+        logger.info("GET /api/manga/" + mangaId);
+        Manga manga = ms.getMangaById(mangaId);
+        if (manga == null) {
+            logger.info("Manga not found with id: " + mangaId);
+        } else {
+            logger.info("Manga found: " + manga);
+        }
+
+        return manga != null ? ResponseEntity.ok(manga) : ResponseEntity.notFound().build();
     }
 
 
