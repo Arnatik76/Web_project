@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/api/manga")
-public class MangaController {
+public class MangaApiController {
 
-    private static final Logger logger = Logger.getLogger(MangaController.class.getName());
+    private static final Logger logger = Logger.getLogger(MangaApiController.class.getName());
     private final MangaService mangaService;
 
-    public MangaController(MangaService mangaService) {
+    public MangaApiController(MangaService mangaService) {
         this.mangaService = mangaService;
     }
 
