@@ -14,7 +14,7 @@ public class ExceptionControllerAdvice {
         ErrorDetails errorDetails = new ErrorDetails();
         errorDetails.setMessage("Manga not found!");
         return ResponseEntity
-                .status(114)
+                .badRequest()
                 .body(errorDetails);
     }
 }
