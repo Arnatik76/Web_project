@@ -2,15 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Mangaverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manga Finder</title>
 </head>
 <body>
-    <h1>This is Home Page</h1>
-    <a href="read/stalker_3/a?ch=1&p=1">
-        <img src="/STALKER_3/COVER_PAGE.png" alt="Cover Page">
-    </a>
-    <a href="read/aidyns_adventure/a">
-        <img src="/Aidyns_Adventure/COVER_PAGE.png" alt="Cover Page">
-    </a>
+<h1>Найти Мангу</h1>
+<form id="mangaForm">
+    <label for="mangaId">Введите ID манги:</label>
+    <input type="number" id="mangaId" required>
+    <button type="submit">Искать</button>
+</form>
+<div id="result"></div>
+
+<script>
+    document.getElementById('mangaForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const mangaId = document.getElementById('mangaId').value;
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = ''; // Очистка результата перед новым запросом
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/manga/${mangaId}`);
+            if (response.ok) {
+                const manga = await response.json();
+                resultDiv.innerHTML = `
+                        <h2>Манга найдена:</h2>
+                        <p><strong>ID:</strong> ${manga.id}</p>
+                        <p><strong>Название:</strong> ${manga.title}</p>
+                        <p><strong>Описание:</strong> ${manga.description}</p>
+                    `;
+            } else if (response.status === 404) {
+                resultDiv.innerHTML = '<p>Манга с таким ID не найдена.</p>';
+            } else {
+                resultDiv.innerHTML = '<p>Произошла ошибка при запросе к серверу.</p>';
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `<p>Ошибка подключения: ${error.message}</p>`;
+        }
+    });
+</script>
 </body>
 </html>
