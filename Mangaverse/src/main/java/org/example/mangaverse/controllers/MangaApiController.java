@@ -1,15 +1,13 @@
 package org.example.mangaverse.controllers;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.example.mangaverse.exceptions.MangaNotFoundException;
 import org.example.mangaverse.models.Manga;
 import org.example.mangaverse.services.MangaService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/manga")
@@ -34,6 +32,20 @@ public class MangaApiController {
         }
 
         return ResponseEntity.ok(manga);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Manga>> getAllManga() {
+        logger.info("GET /api/manga/all");
+        List<Manga> mangaList = mangaService.getAllManga();
+        return ResponseEntity.ok(mangaList);
+    }
+
+    @PostMapping("/new")
+    public ResponseEntity<Manga> addManga(@RequestBody Manga manga) {
+        logger.info("POST /api/manga/new");
+        Manga newManga = mangaService.addManga(manga);
+        return ResponseEntity.ok(newManga);
     }
 
 

@@ -4,6 +4,8 @@ import org.example.mangaverse.models.Manga;
 import org.example.mangaverse.repositories.MangaRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class MangaService {
 
@@ -15,6 +17,14 @@ public class MangaService {
 
     public Manga getMangaById(long id) {
         return mangaRepository.GetMangaById(id);
+    }
+
+    public List<Manga> getAllManga() {
+        return mangaRepository.findAll();
+    }
+
+    public Manga addManga(Manga manga) {
+        return mangaRepository.save(manga);
     }
 
 }
