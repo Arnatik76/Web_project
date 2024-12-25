@@ -14,7 +14,7 @@ public class ProjectConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://127.0.0.1:5500") // Укажите адрес фронтенда
+                        .allowedOrigins("http://localhost:63342") // Укажите адрес фронтенда
                         .allowedMethods("GET", "POST", "PUT", "DELETE");
             }
         };

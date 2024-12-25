@@ -1,0 +1,2 @@
+INSERT INTO manga (title, author, genre, description) VALUES ('Naruto', 'Masashi Kishimoto', 'Shonen', 'Naruto Uzumaki is a young ninja who seeks recognition from his peers and dreams of becoming the Hokage, the leader of his village.');
+INSERT INTO manga (title, author, genre, description) VALUES ('One Piece', 'Eiichiro Oda', 'Shonen', 'Monkey D. Luffy is a young pirate with a dream: to prove the legend true and become the Pirate King.')
