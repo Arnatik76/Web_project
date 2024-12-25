@@ -5,14 +5,14 @@ import org.springframework.data.annotation.Id;
 public class Manga {
 
     @Id
-    private long id;
+    private Long id;
 
     private String title;
     private String author;
     private String genre;
     private String description;
 
-    public Manga(long id, String title, String author, String genre, String description) {
+    public Manga(Long id, String title, String author, String genre, String description) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -20,7 +20,7 @@ public class Manga {
         this.description = description;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -39,5 +39,4 @@ public class Manga {
     public String getDescription() {
         return description;
     }
-
 }

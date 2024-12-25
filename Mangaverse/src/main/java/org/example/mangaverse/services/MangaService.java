@@ -15,16 +15,21 @@ public class MangaService {
         this.mangaRepository = mangaRepository;
     }
 
-    public Manga getMangaById(long id) {
-        return mangaRepository.GetMangaById(id);
+    public Manga getMangaById(Long id) {
+        return mangaRepository.getMangaById(id);
     }
 
     public List<Manga> getAllManga() {
         return mangaRepository.findAll();
     }
 
-    public Manga addManga(Manga manga) {
-        return mangaRepository.save(manga);
+    public void addManga(Manga manga) {
+        String title = manga.getTitle();
+        String author = manga.getAuthor();
+        String genre = manga.getGenre();
+        String description = manga.getDescription();
+
+        mangaRepository.insertManga(title, author, genre, description);
     }
 
 }

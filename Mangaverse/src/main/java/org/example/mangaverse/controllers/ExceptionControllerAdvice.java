@@ -25,4 +25,5 @@ public class ExceptionControllerAdvice {
         String errorMessage = "Invalid parameter: " + ex.getName() + ". Expected type: " + ex.getRequiredType().getSimpleName();
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
+
 }

@@ -44,46 +44,8 @@ public class MangaApiController {
     @PostMapping("/new")
     public ResponseEntity<Manga> addManga(@RequestBody Manga manga) {
         logger.info("POST /api/manga/new");
-        Manga newManga = mangaService.addManga(manga);
-        return ResponseEntity.ok(newManga);
+        mangaService.addManga(manga);
+        return ResponseEntity.ok(manga);
     }
 
-
-    /*@GetMapping("/api/manga/{id}")
-public ResponseEntity<byte[]> getMangaPdf(@PathVariable Long id) {
-    try {
-        // Путь к PDF файлу на сервере
-        String filePath = "path/to/manga_" + id + ".pdf";
-        File file = new File(filePath);
-
-        if (!file.exists()) {
-            return ResponseEntity.notFound().build(); // Если файл не найден
-        }
-
-        // Чтение файла в массив байтов
-        byte[] fileContent = Files.readAllBytes(file.toPath());
-
-        // Формирование HTTP ответа
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDisposition(ContentDisposition.builder("inline")
-                .filename("manga_" + id + ".pdf").build());
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(fileContent);
-    } catch (IOException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Обработка ошибок
-    }
-}
-*/
-
-//    @GetMapping("/stalker_3/a")
-//    public ModelAndView stalker_3_a(@RequestParam(name = "chapter", required = false) int chapter,
-//                                    @RequestParam(name = "page", required = false) int page) {
-//        ModelAndView modelAndView = new ModelAndView("read");
-//        modelAndView.addObject("chapter", chapter);
-//        modelAndView.addObject("page", page);
-//        return modelAndView;
-//    }
 }
