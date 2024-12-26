@@ -43,3 +43,45 @@ body {
 .next {
     right: 10px;
 }
+
+.popular-manga .manga-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 16px; /* Расстояние между карточками */
+    padding: 16px;
+    scroll-behavior: smooth; /* Плавная прокрутка */
+}
+
+.manga-card {
+    min-width: 200px; /* Минимальная ширина карточки */
+    flex-shrink: 0; /* Запретить уменьшение карточек */
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.manga-card img {
+    width: 200px;
+    height: auto;
+}
+
+.scroll-container {
+    display: flex;
+    align-items: center;
+}
+
+.scroll-btn {
+    flex-shrink: 0;
+}
+
+.manga-grid {
+    flex-grow: 1;
+    display: flex;
+    overflow-x: auto;
+    gap: 16px; /* Расстояние между карточками */
+    padding: 16px;
+    scroll-behavior: smooth; /* Плавная прокрутка */
+}

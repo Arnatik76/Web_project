@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,13 +8,19 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <p class="title">Manga Slider</p>
-    <div class="slider">
-        <div class="slides" id="slides"></div>
-        <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
-        <button class="next" onclick="moveSlide(1)">&#10095;</button>
-    </div>
+<section id="popular" class="popular-manga">
+    <div class="container">
+        <h2>Popular Manga</h2>
+        <div class="scroll-container">
+            <button id="scroll-left" class="scroll-btn">←</button>
+            <div id="manga-grid" class="manga-grid">
 
-    <script src="script.js"></script>
+            </div>
+            <button id="scroll-right" class="scroll-btn">→</button>
+        </div>
+    </div>
+</section>
+
+<script src="script.js"></script>
 </body>
 </html>
