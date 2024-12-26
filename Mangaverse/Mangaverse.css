@@ -4,6 +4,19 @@
     padding: 0;
     box-sizing: border-box;
 }
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px; 
+    background-color: #252527; 
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background-color: #888; 
+    border-radius: 10px; 
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: #555; 
+}
 
 body {
     font-family: 'Arial', sans-serif;
@@ -20,7 +33,7 @@ main {
 }
 .container {
     width: 90%;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -40,8 +53,9 @@ header {
 header .logo {
     font-size: 30px;
     font-weight: bold;
-    color: #7289da;
+    color: #000000;
     position: relative;
+    left: 22px;
     top: 15px;
 }
 .logo1 {
@@ -152,10 +166,10 @@ header.sticky {
     display: flex;
     overflow-x: auto;
     gap: 5px; /* Расстояние между карточками */
-    padding: 16px;
+    padding: 5px;
     scroll-behavior: smooth; /* Плавная прокрутка */
     background-color: #252527;
-    margin: 25px 0;
+    margin: 20px;
     border-radius: 10px;
 }
 .manga-grid {
@@ -173,7 +187,7 @@ header.sticky {
 }
 .popular-manga .manga-grid::-webkit-scrollbar-thumb {
     background-color: #888; 
-    border-radius: 5px; 
+    border-radius: 10px; 
 }
 .popular-manga .manga-grid::-webkit-scrollbar-thumb:hover {
     background-color: #555; 
@@ -215,6 +229,120 @@ header.sticky {
 .manga-card .btn:hover {
     color:rgb(242, 151, 102)
 }
+
+/*SLiders***************************************************/
+.image-text-section1 {
+    display: flex;
+    justify-content: center; 
+    flex-direction: column;
+    align-items: center; 
+    padding: 20px;
+    margin-right: 140px;
+    gap: 50px;
+}
+
+.content-container1 {
+    display: flex;
+    flex-direction: row; 
+    align-items: center;
+    gap: 20px; 
+}
+
+.image-text-section1 img {
+    width: 400px; 
+    height: auto; 
+    border-radius: 10px;
+    object-fit: cover; 
+}
+
+.text-content1 {
+    max-width: 600px; 
+    color: #fff; 
+}
+
+.text-content1 h2 {
+    margin: 0 0 10px 0; 
+}
+
+.text-content1 p {
+    margin: 0; 
+}
+
+.image-text-section2 {
+    display: flex;
+    justify-content: center; 
+    flex-direction: column;
+    align-items: center; 
+    padding: 20px;
+    margin-left: 140px;
+    gap: 50px;
+}
+
+.content-container2 {
+    display: flex;
+    flex-direction: row-reverse; 
+    align-items: center;
+    gap: 20px; 
+}
+
+.image-text-section2 img {
+    width: 400px; 
+    height: auto; 
+    border-radius: 10px;
+    object-fit: cover; 
+}
+
+.text-content2 {
+    max-width: 600px; 
+    color: #fff; 
+}
+
+.text-content2 h2 {
+    margin: 0 0 10px 0; 
+}
+
+.text-content2 p {
+    margin: 0; 
+}
+
+.image-text-section3 {
+    display: flex;
+    justify-content: center; 
+    flex-direction: column;
+    align-items: center; 
+    padding: 20px;
+    margin-right: 140px;
+    gap: 50px;
+}
+
+.content-container3 {
+    display: flex;
+    flex-direction: row; 
+    align-items: center;
+    gap: 20px; 
+}
+
+.image-text-section3 img {
+    width: 400px; 
+    height: auto; 
+    border-radius: 10px;
+    object-fit: cover; 
+}
+
+.text-content3 {
+    max-width: 600px; 
+    color: #fff; 
+}
+
+.text-content3 h2 {
+    margin: 0 0 10px 0; 
+}
+
+.text-content3 p {
+    margin: 0; 
+}
+/*SLiders***************************************************/
+
 /* Categories */
 .categories {
     padding: 2rem 0;
