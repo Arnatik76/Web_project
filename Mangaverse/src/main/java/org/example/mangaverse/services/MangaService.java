@@ -28,8 +28,9 @@ public class MangaService {
         String author = manga.getAuthor();
         String genre = manga.getGenre();
         String description = manga.getDescription();
+        String imageUrl = manga.getImageUrl();
 
-        mangaRepository.insertManga(title, author, genre, description);
+        mangaRepository.insertManga(title, author, genre, description, imageUrl);
     }
 
 }

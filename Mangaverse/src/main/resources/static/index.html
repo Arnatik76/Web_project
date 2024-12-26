@@ -3,44 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manga Finder</title>
+    <title>Manga Slider</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<h1>Найти Мангу</h1>
-<form id="mangaForm">
-    <label for="mangaId">Введите ID манги:</label>
-    <input type="number" id="mangaId" required>
-    <button type="submit">Искать</button>
-</form>
-<div id="result"></div>
+    <p class="title">Manga Slider</p>
+    <div class="slider">
+        <div class="slides" id="slides"></div>
+        <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
+        <button class="next" onclick="moveSlide(1)">&#10095;</button>
+    </div>
 
-<script>
-    document.getElementById('mangaForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const mangaId = document.getElementById('mangaId').value;
-        const resultDiv = document.getElementById('result');
-        resultDiv.innerHTML = ''; // Очистка результата перед новым запросом
-
-        try {
-            const response = await fetch(`http://localhost:8080/api/manga/${mangaId}`);
-            if (response.ok) {
-                const manga = await response.json();
-                resultDiv.innerHTML = `
-                        <h2>Манга найдена:</h2>
-                        <p><strong>ID:</strong> ${manga.id}</p>
-                        <p><strong>Название:</strong> ${manga.title}</p>
-                        <p><strong>Описание:</strong> ${manga.description}</p>
-                    `;
-            } else if (response.status === 404) {
-                resultDiv.innerHTML = '<p>Манга с таким ID не найдена.</p>';
-            } else {
-                resultDiv.innerHTML = '<p>Произошла ошибка при запросе к серверу.</p>';
-            }
-        } catch (error) {
-            resultDiv.innerHTML = `<p>Ошибка подключения: ${error.message}</p>`;
-        }
-    });
-</script>
+    <script src="script.js"></script>
 </body>
 </html>

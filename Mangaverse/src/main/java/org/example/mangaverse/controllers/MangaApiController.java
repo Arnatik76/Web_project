@@ -38,6 +38,12 @@ public class MangaApiController {
     public ResponseEntity<List<Manga>> getAllManga() {
         logger.info("GET /api/manga/all");
         List<Manga> mangaList = mangaService.getAllManga();
+        if (mangaList.isEmpty()) {
+            logger.info("No manga found");
+        } else {
+            logger.info("Manga found: " + mangaList.size());
+        }
+
         return ResponseEntity.ok(mangaList);
     }
 

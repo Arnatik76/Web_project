@@ -18,6 +18,6 @@ public interface MangaRepository extends PagingAndSortingRepository<Manga, Long>
     List<Manga> findAll();
 
     @Modifying
-    @Query("INSERT INTO public.manga (title, author, genre, description) VALUES (:title, :author, :genre, :description)")
-    void insertManga(String title, String author, String genre, String description);
+    @Query("INSERT INTO public.manga (title, author, genre, description, imageUrl) VALUES (:title, :author, :genre, :description, :imageUrl)")
+    void insertManga(String title, String author, String genre, String description, String imageUrl);
 }

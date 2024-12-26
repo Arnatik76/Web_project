@@ -1,6 +1,7 @@
 package org.example.mangaverse.models;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 
 public class Manga {
 
@@ -12,12 +13,16 @@ public class Manga {
     private String genre;
     private String description;
 
-    public Manga(Long id, String title, String author, String genre, String description) {
+    @Column("imageUrl")
+    private String imageUrl;
+
+    public Manga(Long id, String title, String author, String genre, String description, String imageUrl) {
         this.id = id;
         this.title = title;
         this.author = author;
         this.genre = genre;
         this.description = description;
+        this.imageUrl = imageUrl;
     }
 
     public Long getId() {
@@ -39,4 +44,9 @@ public class Manga {
     public String getDescription() {
         return description;
     }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
 }
