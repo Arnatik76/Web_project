@@ -1,21 +1,17 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MangaVerse</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="mangaverse.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <script src="script.js"></script>
+    <script src="mangaverse.js"></script>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1 class="logo">
-                <span class="logo1">Manga</span>
-                <span class="logo2">Verse</span>
-            </h1>
+            <h1 class="logo"><span class="logo1">Manga</span><span class="logo2">Verse</span></h1>
             <nav>
                 <ul class="nav-links">
                     <li><a href="#catalog">Catalog</a></li>
@@ -26,45 +22,50 @@
         </div>
     </header>
 
-
     <main>
         <section id="popular" class="popular-manga">
             <div class="container">
-                <h2>Popular Manga</h2>
-                <div class="scroll-container">
+                <div>
                     <button id="scroll-left" class="scroll-btn">←</button>
-                    <div id="manga-grid" class="manga-grid">
+                </div>
+                <div id="manga-grid" class="manga-grid">
 
-                    </div>
+                </div>
+                <div>
                     <button id="scroll-right" class="scroll-btn">→</button>
                 </div>
+
             </div>
         </section>
 
         <section id="categories" class="categories">
             <div class="container">
                 <h2>Categories</h2>
-                <button id="action-btn" class="action-category-btn">Action</button>
-                <button id="romance-btn" class="romance-category-btn">Romance</button>
-                <button id="fantasy-btn" class="fantasy-category-btn">Fantasy</button>
-                <button id="comedy-btn" class="comedy-category-btn">Comedy</button>
+                <ul class="category-list">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Romance</a></li>
+                    <li><a href="#">Fantasy</a></li>
+                    <li><a href="#">Comedy</a></li>
+                </ul>
             </div>
         </section>
         <section id="filtered-manga" class="filtered-manga">
             <div class="container">
+                <h2>Selected Genre</h2>
                 <div id="genre-manga-grid" class="genre-manga-grid"></div>
             </div>
         </section>
+
     </main>
 
     <footer class="footer">
         <div class="container">
             <div class="social-links">
                 <a href="https://www.instagram.com/keshegiai/" target="_blank" class="social-link">
-                    <img src="images/instagram.svg" alt="Instagram" />
+                    <img src="../images/instagram.svg" alt="Instagram" />
                 </a>
                 <a href="https://www.instagram.com/zhalgas_arnat/" target="_blank" class="social-link">
-                    <img src="images/instagram.svg" alt="Instagram" />
+                    <img src="../images/instagram.svg" alt="Instagram" />
                 </a>
             </div>
             <div class="creators">
@@ -79,6 +80,7 @@
             </div>
         </div>
     </footer>
+
 
 </body>
 </html>

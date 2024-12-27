@@ -28,9 +28,21 @@ public class MangaService {
         String author = manga.getAuthor();
         String genre = manga.getGenre();
         String description = manga.getDescription();
+        float rating = manga.getRating();
         String imageUrl = manga.getImageUrl();
 
-        mangaRepository.insertManga(title, author, genre, description, imageUrl);
+        mangaRepository.insertManga(title, author, genre, description, rating, imageUrl);
     }
 
+    public List<Manga> searchManga(String query) {
+        return mangaRepository.searchManga(query);
+    }
+
+    public List<Manga> getPopularManga() {
+        return mangaRepository.getPopularManga();
+    }
+
+    public List<Manga> getMangaByGenre(String genre) {
+        return mangaRepository.getMangaByGenre(genre);
+    }
 }

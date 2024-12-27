@@ -18,6 +18,16 @@ public interface MangaRepository extends PagingAndSortingRepository<Manga, Long>
     List<Manga> findAll();
 
     @Modifying
-    @Query("INSERT INTO public.manga (title, author, genre, description, imageUrl) VALUES (:title, :author, :genre, :description, :imageUrl)")
-    void insertManga(String title, String author, String genre, String description, String imageUrl);
+    @Query("INSERT INTO public.manga (title, author, genre, description, rating, imageUrl) VALUES (:title, :author, :genre, :description, :rating, :imageUrl)")
+    void insertManga(String title, String author, String genre, String description, float rating, String imageUrl);
+
+    @Query("SELECT * FROM public.manga WHERE title LIKE '%' || :query || '%' OR author LIKE '%' || :query || '%' OR genre LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%'")
+    List<Manga> searchManga(String query);
+
+    @Query("SELECT * FROM public.manga ORDER BY rating DESC")
+    List<Manga> getPopularManga();
+
+    @Query("SELECT * FROM public.manga WHERE genre = :genre")
+    List<Manga> getMangaByGenre(String genre);
+
 }

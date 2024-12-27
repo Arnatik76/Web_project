@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS manga (
     author varchar(50) NOT NULL,
     genre varchar(50) NOT NULL,
     description varchar(500) NOT NULL,
+    rating NUMERIC(10, 2) NOT NULL,
     imageUrl varchar(500) NOT NULL
 );

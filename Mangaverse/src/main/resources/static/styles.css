@@ -3,48 +3,11 @@ body {
     font-family: Arial, sans-serif;
 }
 
-.slider {
-    position: relative;
-    max-width: 800px;
-    margin: auto;
-    overflow: hidden;
-}
-
-.slides {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-}
-
-.slide {
-    min-width: 100%;
-    box-sizing: border-box;
-}
-
-.slide img {
-    width: 100%;
-    display: block;
-}
-
-.prev, .next {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-}
-
-.prev {
-    left: 10px;
-}
-
-.next {
-    right: 10px;
-}
-
-.popular-manga .manga-grid {
+/* Popular Manga */
+.manga-grid {
+    background-color: #0A0A0A;
+    border-radius: 10px;
+    -moz-border-radius-bottomleft: 10px;
     display: flex;
     overflow-x: auto;
     gap: 16px; /* Расстояние между карточками */
@@ -54,6 +17,7 @@ body {
 
 .manga-card {
     min-width: 200px; /* Минимальная ширина карточки */
+    max-width: 200px;
     flex-shrink: 0; /* Запретить уменьшение карточек */
     text-align: center;
     border: 1px solid #ccc;
@@ -65,12 +29,13 @@ body {
 
 .manga-card img {
     width: 200px;
-    height: auto;
+    height: 300px;
 }
 
 .scroll-container {
     display: flex;
     align-items: center;
+    gap: 10px;
 }
 
 .scroll-btn {
@@ -85,3 +50,12 @@ body {
     padding: 16px;
     scroll-behavior: smooth; /* Плавная прокрутка */
 }
+
+.manga-card h3 {
+    height: 40px;
+}
+
+
+/* Categories */
+
+.categories

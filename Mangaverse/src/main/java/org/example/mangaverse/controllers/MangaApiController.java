@@ -47,6 +47,45 @@ public class MangaApiController {
         return ResponseEntity.ok(mangaList);
     }
 
+    @GetMapping("/popular")
+    public ResponseEntity<List<Manga>> getPopularManga() {
+        logger.info("GET /api/manga/popular");
+        List<Manga> mangaList = mangaService.getPopularManga();
+        if (mangaList.isEmpty()) {
+            logger.info("No manga found");
+        } else {
+            logger.info("Manga found: " + mangaList.size());
+        }
+
+        return ResponseEntity.ok(mangaList);
+    }
+
+    @GetMapping("/genre")
+    public ResponseEntity<List<Manga>> getMangaByGenre(@RequestParam String genre) {
+        logger.info("GET /api/manga/genre?genre=" + genre);
+        List<Manga> mangaList = mangaService.getMangaByGenre(genre);
+        if (mangaList.isEmpty()) {
+            logger.info("No manga found");
+        } else {
+            logger.info("Manga found: " + mangaList.size());
+        }
+
+        return ResponseEntity.ok(mangaList);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Manga>> searchManga(@RequestParam String query) {
+        logger.info("GET /api/manga/search?query=" + query);
+        List<Manga> mangaList = mangaService.searchManga(query);
+        if (mangaList.isEmpty()) {
+            logger.info("No manga found");
+        } else {
+            logger.info("Manga found: " + mangaList.size());
+        }
+
+        return ResponseEntity.ok(mangaList);
+    }
+
     @PostMapping("/new")
     public ResponseEntity<Manga> addManga(@RequestBody Manga manga) {
         logger.info("POST /api/manga/new");
