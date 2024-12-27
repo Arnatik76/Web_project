@@ -58,4 +58,29 @@ body {
 
 /* Categories */
 
-.categories
+.genre-manga-list {
+    display: flex;
+    flex-direction: row; /* Вертикальное расположение карточек */
+    gap: 16px; /* Отступы между карточками */
+    padding: 16px;
+    overflow-y: auto; /* Прокрутка при переполнении */
+    height: 100vh; /* Высота контейнера на весь экран */
+}
+
+.genre-manga-card {
+    width: 500px;
+    flex-shrink: 0;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 0 auto; /* Центрируем карточку */
+}
+
+.genre-manga-card img {
+    width: 200px;
+    height: 300px;
+}
+

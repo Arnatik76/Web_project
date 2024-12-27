@@ -1,6 +1,7 @@
 package org.example.mangaverse.models;
 
 import org.springframework.data.annotation.Id;
+import javax.validation.constraints.*;
 import org.springframework.data.relational.core.mapping.Column;
 
 public class Manga {
@@ -8,12 +9,29 @@ public class Manga {
     @Id
     private Long id;
 
+    @NotNull
+    @Size(max = 50)
     private String title;
-    private String author;
-    private String genre;
-    private String description;
-    private float rating;
 
+    @NotNull
+    @Size(max = 50)
+    private String author;
+
+    @NotNull
+    @Size(max = 50)
+    private String genre;
+
+    @NotNull
+    @Size(max = 500)
+    private String description;
+
+    @NotNull
+    @DecimalMin("0.0")
+    @DecimalMax("10.0")
+    private Float rating;
+
+    @NotNull
+    @Size(max = 500)
     @Column("imageUrl")
     private String imageUrl;
 

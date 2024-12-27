@@ -3,6 +3,8 @@ package org.example.mangaverse.controllers;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.springframework.validation.annotation.Validated;
+import javax.validation.Valid;
 import org.example.mangaverse.exceptions.MangaNotFoundException;
 import org.example.mangaverse.models.Manga;
 import org.example.mangaverse.services.MangaService;
@@ -87,7 +89,8 @@ public class MangaApiController {
     }
 
     @PostMapping("/new")
-    public ResponseEntity<Manga> addManga(@RequestBody Manga manga) {
+    @Validated
+    public ResponseEntity<Manga> addManga(@Valid @RequestBody Manga manga) {
         logger.info("POST /api/manga/new");
         mangaService.addManga(manga);
         return ResponseEntity.ok(manga);

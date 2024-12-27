@@ -26,12 +26,4 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
 
-    public ResponseEntity<ErrorDetails> exMethodArgumentTypeMismatchException() {
-        ErrorDetails errorDetails = new ErrorDetails();
-        errorDetails.setMessage("Manga not found!");
-        return ResponseEntity
-                .status(404)
-                .body(errorDetails);
-    }
-
 }
