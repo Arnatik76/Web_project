@@ -166,24 +166,33 @@ header.sticky {
     width: 350px;
     height: auto;
     left: 750px;
+    top: -200px;
 }
 .search-icon1{
     position: relative;
     display: flex;
-    width: 260px;
-    height: 200px;
-    top: -150px;
-
+    width: 350px;
+    height: auto;
+    top: -350px;
 }
 .slider{
+    margin:25px 0;
     color: #fff;
     text-align: left;
-    padding: 15px 15px;
+    padding: 35px 25px;
     position: relative;
     left: 180px;
     background-color: #252527;
     max-width: 1160px;
     border-radius: 10px;
+    max-height: 600px;
+}
+.slider p{
+    position: relative;
+    padding: 25px 25px;
+    display: flex;
+    max-width: 600px;
+    white-space: wrap;
 }
 /*popular manga*/
 .popular-manga .manga-grid {

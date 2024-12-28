@@ -160,22 +160,47 @@ header.sticky {
     color:rgb(242, 151, 102)
 
 }
-
-.catalog{
+.catalog {
     position: relative;
-    display: flex;
     margin-top: 35px;
     color: white;
     background-color: #252527;
     max-width: 800px;
-    margin-left: 270px;
-    border-radius: 5px;
-    height: 55px;
+    border-radius: 10px;
+    margin-left: 350px;
 }
-.manga-grid{
+
+.manga-grid {
+    display: grid; /* Включаем CSS Grid */
+    grid-template-columns: repeat(4, 1fr); /* 4 колонки одинаковой ширины */
+    gap: 15px; /* Отступы между карточками */
     max-width: 800px;
-    background-color: #fff;
+    background-color: #252527;
+    margin-top: 50px;
+    border-radius: 5px;
+    padding: 10px;
 }
+.manga-card img {
+    width: 100%;
+    height: 180px; /* Фиксированная высота изображения */
+    object-fit: cover; /* Кадрирование изображения */
+    border-radius: 5px;
+}
+.manga-grid a{
+    text-decoration: none;
+    color: white;
+}
+.manga-card {
+    background-color: #323232;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    padding: 15px;
+    margin: 15px;
+    color: white;
+    max-height: 450px;
+}
+
 
 /*footer*/
 .footer {
