@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const mangaGrid = document.getElementById('manga-grid');
-    const genreMangaGrid = document.getElementById('genre-manga-grid');
     const scrollLeftBtn = document.getElementById('scroll-left');
     const scrollRightBtn = document.getElementById('scroll-right');
 
+    const genreMangaGrid = document.getElementById('genre-manga-grid');
     const actionBtn = document.getElementById('action-btn');
     const romanceBtn = document.getElementById('romance-btn');
     const comedyBtn = document.getElementById('comedy-btn');
