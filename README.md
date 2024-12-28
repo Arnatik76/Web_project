@@ -1,4 +1,4 @@
-# Mangaverse
+# Mangaverse Backend
 
 Mangaverse is a Spring Boot application for managing a collection of manga. It provides RESTful APIs for adding, updating, deleting, and retrieving manga information.
 
