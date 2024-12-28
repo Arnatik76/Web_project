@@ -1,13 +1,3 @@
-# Thinking
-
-
-# Searching
-
-
-# Responding
-
-
-
 # MangaVerse Frontend
 
 ## Overview
