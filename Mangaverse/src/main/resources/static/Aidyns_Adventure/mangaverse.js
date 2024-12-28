@@ -12,60 +12,88 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(document.getElementById('genre-manga-grid'));
 
 
-    async function fetchPopularManga() {
-        try {
-            const response = await fetch('http://localhost:8080/api/manga/popular');
+    function fetchPopularManga() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'http://localhost:8080/api/manga/popular', true);
 
-            if (!response.ok) {
-                throw new Error(`Error fetching manga: ${response.status} ${response.statusText}`);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) { // Запрос завершён
+                if (xhr.status === 200) { // Успешный ответ
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+
+                        // Populate manga grid
+                        data.forEach((manga) => {
+                            const card = document.createElement('div');
+                            card.classList.add('manga-card');
+                            card.innerHTML = `
+                            <img src="${manga.imageUrl}" alt="${manga.title}">
+                            <a href="#" class="btn">${manga.title}</a>
+                        `;
+                            mangaGrid.appendChild(card);
+                        });
+                    } catch (error) {
+                        console.error('Ошибка при парсинге JSON:', error);
+                    }
+                } else {
+                    console.error(`Ошибка при получении манги: ${xhr.status} ${xhr.statusText}`);
+                }
             }
+        };
 
-            const data = await response.json();
+        xhr.onerror = function () {
+            console.error('Произошла ошибка при выполнении запроса.');
+        };
 
-            // Populate manga grid
-            data.forEach((manga) => {
-                const card = document.createElement('div');
-                card.classList.add('manga-card');
-                card.innerHTML = `
-                    <img src="${manga.imageUrl}" alt="${manga.title}">
-                    <h3>${manga.title}</h3>
-                    <a href="#" class="btn">Read Now</a>
-                `;
-                mangaGrid.appendChild(card);
-            });
-        } catch (error) {
-            console.error(error);
-        }
+        xhr.send();
     }
+
 
     fetchPopularManga();
 
-    async function fetchGenreManga(genre) {
-        try {
-            genreMangaGrid.innerHTML = '';
+    function fetchGenreManga(genre) {
+        genreMangaGrid.innerHTML = ''; // Очищаем содержимое перед загрузкой
 
-            const response = await fetch(`http://localhost:8080/api/manga/genre?genre=${genre}`);
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', `http://localhost:8080/api/manga/genre?genre=${encodeURIComponent(genre)}`, true);
 
-            if (!response.ok) {
-                throw new Error(`Error fetching manga: ${response.status} ${response.statusText}`);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) { // Запрос завершён
+                if (xhr.status === 200) { // Успешный ответ
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+
+                        data.forEach((manga) => {
+                            const card = document.createElement('div');
+                            card.classList.add('genre-manga-card');
+                            card.innerHTML = `          
+                            <img src="${manga.imageUrl}" alt="${manga.title}">
+                            <a href="#" class="btn">${manga.title}</a>
+                            <div class="info1">
+                                <p>| author: ${manga.author}</p>
+                            </div>
+                            <div class="info2">
+                                <p>${manga.description}</p>
+                            </div>
+                        `;
+                            genreMangaGrid.appendChild(card);
+                        });
+                    } catch (error) {
+                        console.error('Ошибка при парсинге JSON:', error);
+                    }
+                } else {
+                    console.error(`Ошибка при получении манги: ${xhr.status} ${xhr.statusText}`);
+                }
             }
+        };
 
-            const data = await response.json();
+        xhr.onerror = function () {
+            console.error('Произошла ошибка при выполнении запроса.');
+        };
 
-            data.forEach((manga) => {
-                const card = document.createElement('div');
-                card.classList.add('genre-manga-card');
-                card.innerHTML = `
-                    <img src="${manga.imageUrl}" alt="${manga.title}">
-                    <h3>${manga.title}</h3>
-                    <a href="#" class="btn">Read Now</a>
-                `;
-                genreMangaGrid.appendChild(card);
-            });
-        } catch (error) {
-            console.error(error);
-        }
+        xhr.send();
     }
+
 
     actionBtn.addEventListener('click', () => {
         fetchGenreManga('Action');
@@ -92,4 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
     scrollRightBtn.addEventListener('click', () => {
         mangaGrid.scrollBy({left: 300, behavior: 'smooth'});
     });
+});
+
+document.querySelectorAll('.info2').forEach(info2 => {
+    const originalText = info2.dataset.title;
+    if (originalText.length > 250) {
+        info2.textContent = originalText.substring(0, 250) + '...';
+    }
 });
