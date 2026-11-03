@@ -12,7 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
- * Guards every write request to the API with the {@code X-Admin-Token} header.
+ * Guards write requests to the catalog API: a signed-in administrator, or the {@code X-Admin-Token} header for scripts.
  * Runs before the request body is read, so unauthorized callers get 403 rather than validation details.
  * Temporary until real accounts and roles exist.
  */
@@ -30,6 +30,9 @@ public class AdminTokenInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         HttpMethod method = HttpMethod.valueOf(request.getMethod());
         if (method == HttpMethod.GET || method == HttpMethod.HEAD || method == HttpMethod.OPTIONS) {
+            return true;
+        }
+        if (request.isUserInRole("ADMIN")) {
             return true;
         }
         String provided = request.getHeader(HEADER);

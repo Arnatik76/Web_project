@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.example.mangaverse.library.LibraryStatus;
 import org.example.mangaverse.models.Chapter;
 import org.example.mangaverse.models.Manga;
 import org.example.mangaverse.models.MangaType;
@@ -104,6 +105,7 @@ public class PageController {
         view.addObject("latestChapter", chapters.isEmpty() ? null : chapters.get(chapters.size() - 1));
         view.addObject("chaptersLabel", plural(chapters.size(), "глава", "главы", "глав"));
         view.addObject("similar", mangaService.similar(manga, 6));
+        view.addObject("libraryStatuses", LibraryStatus.values());
         view.addObject("nav", "catalog");
         return view;
     }

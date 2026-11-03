@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Регистрация', null)}"></head>
+<body th:data-icons="@{/img/icons.svg}">
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <div class="auth">
+        <div class="auth__head">
+            <span class="logo__mark" aria-hidden="true">M</span>
+            <h1 class="t-large">Аккаунт MangaVerse</h1>
+            <p class="t-caption">Всё, что вы уже прочитали на этом устройстве, сохранится в аккаунте.</p>
+        </div>
+
+        <form class="form" method="post" th:action="@{/signup}" th:object="${form}" novalidate>
+            <div class="form__field">
+                <label class="form__label" for="name">Имя</label>
+                <input class="form__input" th:field="*{name}" type="text" autocomplete="nickname" maxlength="60"
+                       th:attr="aria-invalid=${#fields.hasErrors('name')} ? 'true' : null" required>
+                <p class="form__error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Ошибка</p>
+            </div>
+            <div class="form__field">
+                <label class="form__label" for="email">Email</label>
+                <input class="form__input" th:field="*{email}" type="email" autocomplete="email" inputmode="email"
+                       autocapitalize="none" spellcheck="false" maxlength="254"
+                       th:attr="aria-invalid=${#fields.hasErrors('email')} ? 'true' : null" required>
+                <p class="form__error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Ошибка</p>
+            </div>
+            <div class="form__field">
+                <label class="form__label" for="password">Пароль</label>
+                <input class="form__input" id="password" name="password" type="password" autocomplete="new-password"
+                       minlength="8" maxlength="72"
+                       th:attr="aria-invalid=${#fields.hasErrors('password')} ? 'true' : null" required>
+                <p class="form__error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Ошибка</p>
+            </div>
+            <button class="btn btn--filled" type="submit">Создать аккаунт</button>
+        </form>
+
+        <p class="auth__foot">Уже есть аккаунт? <a th:href="@{/login}">Войти</a></p>
+    </div>
+</main>
+
+<nav th:replace="~{fragments/layout :: tabbar}"></nav>
+<dialog th:replace="~{fragments/layout :: spotlight}"></dialog>
+</body>
+</html>

@@ -30,6 +30,8 @@ import org.example.mangaverse.web.Covers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.example.mangaverse.config.SecurityConfig;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
@@ -37,7 +39,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(PageController.class)
-@Import(Covers.class)
+@Import({Covers.class, SecurityConfig.class})
 @TestPropertySource(properties = {"spring.web.locale=ru", "spring.web.locale-resolver=fixed", "mangaverse.catalog.page-size=2"})
 class PageControllerTest {
 
@@ -46,6 +48,9 @@ class PageControllerTest {
 
     @MockitoBean
     MangaService mangaService;
+
+    @MockitoBean
+    UserDetailsService userDetailsService;
 
     @MockitoBean
     ReaderService readerService;

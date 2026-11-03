@@ -22,12 +22,16 @@ import org.example.mangaverse.services.ReaderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.example.mangaverse.config.SecurityConfig;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(MangaApiController.class)
+@Import(SecurityConfig.class)
 @TestPropertySource(properties = "mangaverse.admin-token=secret")
 class MangaApiControllerTest {
 
@@ -41,6 +45,9 @@ class MangaApiControllerTest {
 
     @MockitoBean
     MangaService mangaService;
+
+    @MockitoBean
+    UserDetailsService userDetailsService;
 
     @MockitoBean
     ReaderService readerService;

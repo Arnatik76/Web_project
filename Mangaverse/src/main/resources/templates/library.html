@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Библиотека', null)}"></head>
+<body th:data-icons="@{/img/icons.svg}">
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <div class="page-head">
+        <h1 class="t-large">Библиотека</h1>
+    </div>
+
+    <section class="account-card" sec:authorize="isAuthenticated()">
+        <span class="avatar" aria-hidden="true"
+              th:text="${#strings.toUpperCase(#strings.substring(#authentication.principal.displayName, 0, 1))}">A</span>
+        <div class="account-card__text">
+            <span class="account-card__title" th:text="${#authentication.principal.displayName}">Имя</span>
+            <span class="account-card__sub" data-sync-status>Синхронизируется между устройствами</span>
+        </div>
+        <div class="account-card__actions">
+            <a class="btn btn--tinted btn--small" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/chapters/new}">
+                <svg th:replace="~{fragments/layout :: icon('upload')}"></svg>Загрузить главу
+            </a>
+            <form method="post" th:action="@{/logout}" data-logout>
+                <button class="btn btn--tinted btn--small" type="submit">Выйти</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="account-card" sec:authorize="!isAuthenticated()">
+        <span class="account-card__icon"><svg th:replace="~{fragments/layout :: icon('cloud')}"></svg></span>
+        <div class="account-card__text">
+            <span class="account-card__title">Библиотека хранится на этом устройстве</span>
+            <span class="account-card__sub">Войдите, чтобы она и прогресс чтения были на всех ваших устройствах.</span>
+        </div>
+        <div class="account-card__actions">
+            <a class="btn btn--filled btn--small" th:href="@{/login}">Войти</a>
+            <a class="btn btn--tinted btn--small" th:href="@{/signup}">Создать аккаунт</a>
+        </div>
+    </section>
+
+    <!-- Rendered by app.js from this device's library (synced with the account when signed in). -->
+    <nav class="library-tabs" aria-label="Полки">
+        <div class="segmented" role="tablist" data-library-tabs>
+            <button class="segmented__item" type="button" role="tab" data-shelf-tab="HISTORY">
+                История<span class="segmented__count" data-count="HISTORY"></span>
+            </button>
+            <button class="segmented__item" type="button" role="tab" th:each="s : ${statuses}" th:data-shelf-tab="${s.name()}">
+                <span th:text="${s.label}">Читаю</span><span class="segmented__count" th:data-count="${s.name()}"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="grid library-grid" data-library-grid></div>
+    <div class="empty" data-library-empty hidden>
+        <div class="empty__icon"><svg th:replace="~{fragments/layout :: icon('bookmark')}"></svg></div>
+        <p class="empty__title" data-library-empty-title>Здесь пока пусто</p>
+        <p data-library-empty-text>Откройте любую главу — тайтл появится в «Читаю».</p>
+        <a class="btn btn--tinted" th:href="@{/catalog}">Открыть каталог</a>
+    </div>
+    <noscript><p class="empty">Для библиотеки нужен JavaScript.</p></noscript>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<nav th:replace="~{fragments/layout :: tabbar}"></nav>
+<dialog th:replace="~{fragments/layout :: spotlight}"></dialog>
+</body>
+</html>

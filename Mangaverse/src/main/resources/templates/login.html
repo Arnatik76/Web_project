@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Вход', null)}"></head>
+<body th:data-icons="@{/img/icons.svg}">
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <div class="auth">
+        <div class="auth__head">
+            <span class="logo__mark" aria-hidden="true">M</span>
+            <h1 class="t-large">Вход</h1>
+            <p class="t-caption">Библиотека и прогресс чтения — на всех ваших устройствах.</p>
+        </div>
+
+        <p class="alert" th:if="${param.error != null}" role="alert">Неверный email или пароль.</p>
+
+        <form class="form" method="post" th:action="@{/login}">
+            <div class="form__field">
+                <label class="form__label" for="email">Email</label>
+                <input class="form__input" id="email" name="email" type="email" autocomplete="username"
+                       inputmode="email" autocapitalize="none" spellcheck="false" required autofocus>
+            </div>
+            <div class="form__field">
+                <label class="form__label" for="password">Пароль</label>
+                <input class="form__input" id="password" name="password" type="password" autocomplete="current-password" required>
+            </div>
+            <label class="form__check"><input type="checkbox" name="remember" checked> Запомнить меня</label>
+            <button class="btn btn--filled" type="submit">Войти</button>
+        </form>
+
+        <p class="auth__foot">Впервые здесь? <a th:href="@{/signup}">Создать аккаунт</a></p>
+    </div>
+</main>
+
+<nav th:replace="~{fragments/layout :: tabbar}"></nav>
+<dialog th:replace="~{fragments/layout :: spotlight}"></dialog>
+</body>
+</html>

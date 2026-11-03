@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/layout :: head(${manga.title}, ${manga.description})}"></head>
 <body th:data-icons="@{/img/icons.svg}" th:with="rating=${#numbers.formatDecimal(manga.rating, 1, 1, 'POINT')}">
 <header th:replace="~{fragments/layout :: header}"></header>
 
 <main>
-    <section class="title-hero">
+    <section class="title-hero" data-title-meta th:data-slug="${manga.slug}" th:data-title="${manga.title}"
+             th:data-cover="@{${@covers.thumbnail(manga.imageUrl)}}">
         <div class="backdrop" aria-hidden="true"><img th:src="@{${@covers.thumbnail(manga.imageUrl)}}" alt=""></div>
         <div class="container title-hero__inner">
             <div class="cover title-hero__cover">
@@ -26,9 +27,17 @@
                     <a class="btn btn--filled" th:if="${firstChapter == null}" aria-disabled="true" role="link">
                         <svg th:replace="~{fragments/layout :: icon('book')}"></svg>Читать
                     </a>
-                    <button class="btn btn--tinted" type="button" data-share th:data-share-title="${manga.title}">
-                        <svg th:replace="~{fragments/layout :: icon('share')}"></svg>Поделиться
+                    <button class="btn btn--tinted" type="button" data-library-open aria-haspopup="dialog">
+                        <svg class="icon" aria-hidden="true" data-library-icon><use th:href="@{/img/icons.svg} + '#bookmark'"></use></svg>
+                        <span data-library-label>В библиотеку</span>
                     </button>
+                    <button class="icon-btn icon-btn--tinted" type="button" data-share th:data-share-title="${manga.title}" aria-label="Поделиться">
+                        <svg th:replace="~{fragments/layout :: icon('share')}"></svg>
+                    </button>
+                    <a class="icon-btn icon-btn--tinted" sec:authorize="hasRole('ADMIN')" aria-label="Загрузить главу"
+                       th:href="@{/admin/chapters/new(manga=${manga.slug})}">
+                        <svg th:replace="~{fragments/layout :: icon('upload')}"></svg>
+                    </a>
                 </div>
                 <p class="title-hero__note" th:if="${firstChapter == null}">Главы пока не загружены.</p>
             </div>
@@ -110,6 +119,26 @@
         <section th:replace="~{fragments/layout :: shelf('Похожие', ${similar}, @{/catalog(genre=${manga.genre})})}"></section>
     </th:block>
 </main>
+
+<dialog class="sheet" data-library-sheet aria-labelledby="library-sheet-title">
+    <div class="sheet__head">
+        <h2 class="t-title" id="library-sheet-title">В библиотеку</h2>
+        <button class="icon-btn" type="button" data-close aria-label="Закрыть">
+            <svg th:replace="~{fragments/layout :: icon('x')}"></svg>
+        </button>
+    </div>
+    <div class="sheet__list">
+        <button class="sheet__item" type="button" th:each="s : ${libraryStatuses}"
+                th:data-status="${s.name()}" aria-pressed="false">
+            <span class="sheet__item-text" th:text="${s.label}">Читаю</span>
+            <svg th:replace="~{fragments/layout :: icon('check')}"></svg>
+        </button>
+        <div class="sheet__divider" data-library-remove-divider hidden></div>
+        <button class="sheet__item sheet__item--danger" type="button" data-status="" data-library-remove hidden>
+            <span class="sheet__item-text">Убрать из библиотеки</span>
+        </button>
+    </div>
+</dialog>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <nav th:replace="~{fragments/layout :: tabbar}"></nav>

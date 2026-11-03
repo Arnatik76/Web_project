@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <!-- Shared building blocks. Every page includes head, header, spotlight, tabbar and footer. -->
 
 <head th:fragment="head(pageTitle, pageDescription)">
@@ -19,6 +19,14 @@
     <link rel="stylesheet" th:href="@{/css/base.css}">
     <link rel="stylesheet" th:href="@{/css/components.css}">
     <link rel="stylesheet" th:href="@{/css/pages.css}">
+    <!-- Account state for sync.js. The CSRF token is only rendered for signed-in users,
+         so anonymous visitors never get a session just for browsing. -->
+    <meta name="mv-user" th:content="${#authorization.expression('isAuthenticated()')} ? '1' : '0'">
+    <th:block sec:authorize="isAuthenticated()">
+        <meta name="_csrf" th:content="${_csrf.token}">
+        <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    </th:block>
+    <script th:src="@{/js/sync.js}" defer></script>
     <script th:src="@{/js/app.js}" defer></script>
 </head>
 
@@ -35,6 +43,7 @@
         <nav class="nav" aria-label="Основная навигация">
             <a class="nav__link" th:href="@{/}" th:attr="aria-current=${nav == 'home' ? 'page' : null}">Главная</a>
             <a class="nav__link" th:href="@{/catalog}" th:attr="aria-current=${nav == 'catalog' ? 'page' : null}">Каталог</a>
+            <a class="nav__link" th:href="@{/library}" th:attr="aria-current=${nav == 'library' ? 'page' : null}">Библиотека</a>
         </nav>
         <div class="header__actions">
             <button class="search-trigger" type="button" data-search-open aria-keyshortcuts="Meta+K Control+K">
@@ -45,6 +54,10 @@
             <button class="icon-btn search-icon-btn" type="button" data-search-open aria-label="Поиск">
                 <svg th:replace="~{fragments/layout :: icon('search')}"></svg>
             </button>
+            <a class="avatar" sec:authorize="isAuthenticated()" th:href="@{/library}"
+               th:aria-label="|Аккаунт: ${#authentication.principal.displayName}|"
+               th:text="${#strings.toUpperCase(#strings.substring(#authentication.principal.displayName, 0, 1))}">A</a>
+            <a class="btn btn--tinted btn--small header__signin" sec:authorize="!isAuthenticated()" th:href="@{/login}">Войти</a>
             <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-label="Сменить тему">
                 <svg class="icon icon--sun" aria-hidden="true"><use th:href="@{/img/icons.svg} + '#sun'"></use></svg>
                 <svg class="icon icon--moon" aria-hidden="true"><use th:href="@{/img/icons.svg} + '#moon'"></use></svg>
@@ -59,6 +72,9 @@
     </a>
     <a class="tabbar__item" th:href="@{/catalog}" th:attr="aria-current=${nav == 'catalog' ? 'page' : null}">
         <svg th:replace="~{fragments/layout :: icon('grid')}"></svg>Каталог
+    </a>
+    <a class="tabbar__item" th:href="@{/library}" th:attr="aria-current=${nav == 'library' ? 'page' : null}">
+        <svg th:replace="~{fragments/layout :: icon('bookmark')}"></svg>Библиотека
     </a>
     <button class="tabbar__item" type="button" data-search-open>
         <svg th:replace="~{fragments/layout :: icon('search')}"></svg>Поиск

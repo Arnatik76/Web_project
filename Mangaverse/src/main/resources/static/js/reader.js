@@ -22,8 +22,6 @@
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
   const SETTINGS_KEY = `mv-reader:${data.slug}`;
-  const PROGRESS_KEY = 'mv-progress';
-  const MAX_PROGRESS_ENTRIES = 60;
 
   const store = {
     read(key, fallback) {
@@ -236,8 +234,8 @@
   }
 
   function saveProgress() {
-    const all = store.read(PROGRESS_KEY, {}) || {};
-    all[data.slug] = {
+    const finished = index >= total;
+    window.MV?.progress.save({
       slug: data.slug,
       title: data.mangaTitle,
       cover: data.cover,
@@ -245,23 +243,28 @@
       chapterLabel: data.chapterLabel,
       page: Math.min(index + 1, total),
       total,
-      finished: index >= total,
-      updatedAt: Date.now(),
-    };
-    const entries = Object.values(all).sort((a, b) => b.updatedAt - a.updatedAt).slice(0, MAX_PROGRESS_ENTRIES);
-    store.write(PROGRESS_KEY, Object.fromEntries(entries.map((entry) => [entry.slug, entry])));
+      finished,
+    });
+    // Finishing the last chapter moves the title from "Читаю" to "Прочитано".
+    if (finished && !data.nextUrl && window.MV?.library.get(data.slug)?.status === 'READING') {
+      window.MV.library.set(data.slug, 'COMPLETED', { title: data.mangaTitle, cover: data.cover });
+    }
   }
 
   function restore() {
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     const param = Number(new URLSearchParams(location.search).get('page'));
-    const saved = (store.read(PROGRESS_KEY, {}) || {})[data.slug];
+    const saved = window.MV?.progress.get(data.slug);
     let page = 1;
     if (Number.isInteger(param) && param > 0) page = param;
     else if (saved && saved.chapter === data.chapter && !saved.finished) page = saved.page;
     goTo(Math.min(page, total) - 1, { instant: true });
     restored = true;
     scheduleSave();
+    // Opening a title adds it to "Читаю", like Apple Books' Reading Now.
+    if (window.MV && !window.MV.library.get(data.slug)) {
+      window.MV.library.set(data.slug, 'READING', { title: data.mangaTitle, cover: data.cover });
+    }
   }
 
   /* ---- Fullscreen & wake lock ------------------------------------------ */

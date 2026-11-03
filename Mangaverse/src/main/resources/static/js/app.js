@@ -63,68 +63,67 @@
     update();
   }
 
-  /* ---- Reading progress (written by reader.js) ------------------------- */
-  const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-  const CHAPTER = /^\d{1,5}(?:\.\d)?$/;
-  const readProgress = () => {
-    try {
-      const all = JSON.parse(localStorage.getItem('mv-progress')) || {};
-      // Only trust well-formed entries: they become links and image URLs.
-      return Object.values(all).filter((e) => e && SLUG.test(e.slug) && CHAPTER.test(String(e.chapter))
-        && typeof e.cover === 'string' && e.cover.startsWith('/') && !e.cover.startsWith('//'));
-    } catch {
-      return [];
+  /* ---- Library & progress (window.MV from sync.js) --------------------- */
+  const MV = window.MV;
+
+  function coverCard({ href, cover, title, meta, percent }) {
+    const coverBox = el('div', { class: 'cover' }, el('img', { src: cover, alt: '', width: '375', height: '562', loading: 'lazy', decoding: 'async' }));
+    if (percent != null) {
+      const bar = el('span', { class: 'progress', role: 'progressbar', 'aria-valuenow': String(percent),
+        'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-label': `Прочитано ${percent}%` }, el('span'));
+      bar.firstChild.style.width = `${percent}%`;
+      coverBox.append(bar);
     }
-  };
+    return el('a', { class: 'card', href }, coverBox,
+      el('h3', { class: 'card__title' }, String(title || '')),
+      el('p', { class: 'meta' }, ...meta.map((text) => el('span', {}, text))));
+  }
+
+  const percentOf = (e) => Math.round((Number(e.page) / Math.max(Number(e.total), 1)) * 100);
+  const continueHref = (e) => `/read/${e.slug}/${e.chapter}?page=${Number(e.page) || 1}`;
 
   // Home: "Продолжить чтение" shelf.
   const continueSection = document.querySelector('[data-continue]');
-  if (continueSection) {
-    const entries = readProgress().filter((e) => !e.finished).sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 12);
-    if (entries.length) {
-      const track = continueSection.querySelector('[data-continue-track]');
-      track.replaceChildren(...entries.map((e) => {
-        const percent = Math.round((Number(e.page) / Math.max(Number(e.total), 1)) * 100);
-        const bar = el('span', { class: 'progress', role: 'progressbar', 'aria-valuenow': String(percent),
-          'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-label': `Прочитано ${percent}%` }, el('span'));
-        bar.firstChild.style.width = `${percent}%`;
-        return el('a', { class: 'card', href: `/read/${e.slug}/${e.chapter}?page=${Number(e.page) || 1}` },
-          el('div', { class: 'cover' }, el('img', { src: e.cover, alt: '', width: '375', height: '562', loading: 'lazy' }), bar),
-          el('h3', { class: 'card__title' }, String(e.title || '')),
-          el('p', { class: 'meta' }, el('span', {}, `Гл. ${e.chapter}`), el('span', {}, `стр. ${e.page} из ${e.total}`)));
-      }));
-      continueSection.hidden = false;
+  function renderContinue() {
+    if (!continueSection || !MV) return;
+    const entries = MV.progress.all().filter((e) => !e.finished).slice(0, 12);
+    continueSection.hidden = entries.length === 0;
+    continueSection.querySelector('[data-continue-track]').replaceChildren(...entries.map((e) => coverCard({
+      href: continueHref(e), cover: e.cover, title: e.title, percent: percentOf(e),
+      meta: [`Гл. ${e.chapter}`, `стр. ${e.page} из ${e.total}`],
+    })));
+    continueSection.querySelector('[data-shelf-track]')?.dispatchEvent(new Event('scroll'));
+  }
+
+  // Title page: read marks, "Продолжить" button, library status.
+  const chapterList = document.querySelector('[data-chapters]');
+  const titleMeta = document.querySelector('[data-title-meta]');
+  function renderTitleProgress() {
+    if (!chapterList || !MV) return;
+    const entry = MV.progress.get(chapterList.dataset.slug);
+    const rows = [...chapterList.querySelectorAll('[data-chapter]')];
+    const current = entry ? Number(entry.chapter) : -1;
+    rows.forEach((row) => {
+      const n = Number(row.dataset.chapter);
+      row.classList.toggle('is-read', !!entry && (n < current || (n === current && entry.finished)));
+      row.classList.toggle('is-current', !!entry && n === current && !entry.finished);
+    });
+    const cta = document.querySelector('[data-read-cta]');
+    const label = cta?.querySelector('[data-read-cta-label]');
+    if (!entry || !cta || !label) return;
+    const nextRow = rows.find((row) => Number(row.dataset.chapter) > current);
+    if (!entry.finished) {
+      cta.href = continueHref(entry);
+      label.textContent = `Продолжить · гл. ${entry.chapter}`;
+    } else if (nextRow) {
+      cta.href = nextRow.getAttribute('href');
+      label.textContent = `Читать гл. ${nextRow.dataset.chapter}`;
+    } else {
+      label.textContent = 'Перечитать';
     }
   }
 
-  // Title page: mark read chapters and turn "Начать читать" into "Продолжить".
-  const chapterList = document.querySelector('[data-chapters]');
   if (chapterList) {
-    const entry = readProgress().find((e) => e.slug === chapterList.dataset.slug);
-    const rows = [...chapterList.querySelectorAll('[data-chapter]')];
-    if (entry) {
-      const current = Number(entry.chapter);
-      rows.forEach((row) => {
-        const n = Number(row.dataset.chapter);
-        row.classList.toggle('is-read', n < current || (n === current && entry.finished));
-        row.classList.toggle('is-current', n === current && !entry.finished);
-      });
-      const cta = document.querySelector('[data-read-cta]');
-      const label = cta?.querySelector('[data-read-cta-label]');
-      if (cta && label) {
-        const nextRow = rows.find((row) => Number(row.dataset.chapter) > current);
-        if (!entry.finished) {
-          cta.href = `/read/${entry.slug}/${entry.chapter}?page=${Number(entry.page) || 1}`;
-          label.textContent = `Продолжить · гл. ${entry.chapter}`;
-        } else if (nextRow) {
-          cta.href = nextRow.getAttribute('href');
-          label.textContent = `Читать гл. ${nextRow.dataset.chapter}`;
-        } else {
-          label.textContent = 'Перечитать';
-        }
-      }
-    }
-
     const sortButton = document.querySelector('[data-chapters-sort]');
     const sortLabel = sortButton?.querySelector('[data-chapters-sort-label]');
     const applyOrder = (desc) => {
@@ -136,6 +135,102 @@
       const desc = !chapterList.classList.contains('is-desc');
       applyOrder(desc);
       store.set('mv-chapters-order', desc ? 'desc' : 'asc');
+    });
+  }
+
+  const librarySheet = document.querySelector('[data-library-sheet]');
+  const libraryButton = document.querySelector('[data-library-open]');
+  function renderLibraryButton() {
+    if (!titleMeta || !libraryButton || !MV) return;
+    const entry = MV.library.get(titleMeta.dataset.slug);
+    libraryButton.querySelector('[data-library-label]').textContent = entry ? MV.library.statuses[entry.status] : 'В библиотеку';
+    libraryButton.querySelector('[data-library-icon] use')
+      ?.setAttribute('href', `${ICONS}#${entry ? 'bookmark-fill' : 'bookmark'}`);
+    librarySheet?.querySelectorAll('[data-status]').forEach((item) => {
+      item.setAttribute('aria-pressed', String(!!entry && item.dataset.status === entry.status));
+    });
+    librarySheet?.querySelectorAll('[data-library-remove], [data-library-remove-divider]').forEach((node) => { node.hidden = !entry; });
+  }
+  if (libraryButton && librarySheet && MV && typeof librarySheet.showModal === 'function') {
+    libraryButton.addEventListener('click', () => librarySheet.showModal());
+    librarySheet.querySelector('[data-close]')?.addEventListener('click', () => librarySheet.close());
+    librarySheet.addEventListener('click', (event) => { if (event.target === librarySheet) librarySheet.close(); });
+    librarySheet.querySelectorAll('[data-status]').forEach((item) => item.addEventListener('click', () => {
+      const status = item.dataset.status || null;
+      MV.library.set(titleMeta.dataset.slug, status, { title: titleMeta.dataset.title, cover: titleMeta.dataset.cover });
+      librarySheet.close();
+      toast(status ? `Добавлено: ${MV.library.statuses[status]}` : 'Убрано из библиотеки');
+    }));
+  }
+
+  // Library page.
+  const libraryGrid = document.querySelector('[data-library-grid]');
+  let activeShelf = store.get('mv-library-tab') || 'READING';
+  function renderLibrary() {
+    if (!libraryGrid || !MV) return;
+    const entries = MV.library.all();
+    const history = MV.progress.all();
+    const counts = { HISTORY: history.length };
+    entries.forEach((e) => { counts[e.status] = (counts[e.status] || 0) + 1; });
+    document.querySelectorAll('[data-count]').forEach((node) => {
+      node.textContent = counts[node.dataset.count] ? String(counts[node.dataset.count]) : '';
+    });
+    document.querySelectorAll('[data-shelf-tab]').forEach((tab) => {
+      tab.setAttribute('aria-selected', String(tab.dataset.shelfTab === activeShelf));
+      tab.setAttribute('aria-pressed', String(tab.dataset.shelfTab === activeShelf));
+    });
+
+    const progressBySlug = Object.fromEntries(history.map((e) => [e.slug, e]));
+    const cards = activeShelf === 'HISTORY'
+      ? history.map((e) => coverCard({
+        href: e.finished ? `/title/${e.slug}` : continueHref(e), cover: e.cover, title: e.title,
+        percent: e.finished ? 100 : percentOf(e), meta: [`Гл. ${e.chapter}`, e.finished ? 'прочитана' : `стр. ${e.page} из ${e.total}`],
+      }))
+      : entries.filter((e) => e.status === activeShelf).map((e) => {
+        const p = progressBySlug[e.slug];
+        return coverCard({
+          href: p && !p.finished ? continueHref(p) : `/title/${e.slug}`, cover: e.cover, title: e.title,
+          percent: p && !p.finished ? percentOf(p) : null, meta: [p ? `Гл. ${p.chapter}` : 'Не начато'],
+        });
+      });
+    libraryGrid.replaceChildren(...cards);
+    const empty = document.querySelector('[data-library-empty]');
+    if (empty) {
+      empty.hidden = cards.length > 0;
+      const texts = {
+        HISTORY: ['История пуста', 'Здесь появятся главы, которые вы открывали.'],
+        READING: ['Вы пока ничего не читаете', 'Откройте любую главу — тайтл появится здесь.'],
+      };
+      const [title, text] = texts[activeShelf] || ['На этой полке пусто', 'Добавьте тайтл кнопкой «В библиотеку» на его странице.'];
+      empty.querySelector('[data-library-empty-title]').textContent = title;
+      empty.querySelector('[data-library-empty-text]').textContent = text;
+    }
+  }
+  document.querySelectorAll('[data-shelf-tab]').forEach((tab) => tab.addEventListener('click', () => {
+    activeShelf = tab.dataset.shelfTab;
+    store.set('mv-library-tab', activeShelf);
+    renderLibrary();
+  }));
+
+  const renderAll = () => { renderContinue(); renderTitleProgress(); renderLibraryButton(); renderLibrary(); };
+  renderAll();
+  document.addEventListener('mv:change', renderAll);
+  // Another tab (e.g. the reader) changed the library or progress.
+  window.addEventListener('storage', (event) => { if (event.key === 'mv-library' || event.key === 'mv-progress') renderAll(); });
+
+  // Admin upload: show the picked files and accept drag and drop.
+  const dropzone = document.querySelector('[data-dropzone]');
+  if (dropzone) {
+    const input = dropzone.querySelector('input[type="file"]');
+    const label = dropzone.querySelector('[data-dropzone-label]');
+    const update = () => { label.textContent = input.files.length ? `Выбрано страниц: ${input.files.length}` : 'Выберите или перетащите страницы'; };
+    input.addEventListener('change', update);
+    ['dragenter', 'dragover'].forEach((type) => dropzone.addEventListener(type, (e) => { e.preventDefault(); dropzone.classList.add('is-over'); }));
+    ['dragleave', 'drop'].forEach((type) => dropzone.addEventListener(type, () => dropzone.classList.remove('is-over')));
+    dropzone.addEventListener('drop', (e) => { e.preventDefault(); input.files = e.dataTransfer.files; update(); });
+    document.querySelector('[data-upload]')?.addEventListener('submit', (e) => {
+      e.submitter?.setAttribute('aria-disabled', 'true');
+      if (e.submitter) e.submitter.textContent = 'Загружаем…';
     });
   }
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark" xmlns:th="http://www.thymeleaf.org"
+<html lang="ru" data-theme="dark" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:with="m=${view.manga}, c=${view.chapter}, total=${view.pages.size()}">
 <head>
     <meta charset="UTF-8">
@@ -15,6 +15,12 @@
     <link rel="stylesheet" th:href="@{/css/base.css}">
     <link rel="stylesheet" th:href="@{/css/components.css}">
     <link rel="stylesheet" th:href="@{/css/reader.css}">
+    <meta name="mv-user" th:content="${#authorization.expression('isAuthenticated()')} ? '1' : '0'">
+    <th:block sec:authorize="isAuthenticated()">
+        <meta name="_csrf" th:content="${_csrf.token}">
+        <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    </th:block>
+    <script th:src="@{/js/sync.js}" defer></script>
     <script th:src="@{/js/reader.js}" defer></script>
 </head>
 <body class="reader-body" th:data-icons="@{/img/icons.svg}">
@@ -26,7 +32,7 @@
      th:data-chapter="${c.numberLabel()}"
      th:data-chapter-label="${c.label()}"
      th:data-manga-title="${m.title}"
-     th:data-cover="@{${m.imageUrl}}"
+     th:data-cover="@{${@covers.thumbnail(m.imageUrl)}}"
      th:data-total="${total}"
      th:data-prev-url="${view.previous != null} ? @{/read/{s}/{n}(s=${m.slug}, n=${view.previous.numberLabel()})} : null"
      th:data-next-url="${view.next != null} ? @{/read/{s}/{n}(s=${m.slug}, n=${view.next.numberLabel()})} : null">
