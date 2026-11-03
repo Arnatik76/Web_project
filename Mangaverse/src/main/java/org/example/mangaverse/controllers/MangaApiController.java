@@ -6,8 +6,10 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.example.mangaverse.exceptions.MangaNotFoundException;
+import org.example.mangaverse.models.Chapter;
 import org.example.mangaverse.models.Manga;
 import org.example.mangaverse.services.MangaService;
+import org.example.mangaverse.services.ReaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +28,21 @@ public class MangaApiController {
     private static final Logger log = LoggerFactory.getLogger(MangaApiController.class);
 
     private final MangaService mangaService;
+    private final ReaderService readerService;
 
-    public MangaApiController(MangaService mangaService) {
+    public MangaApiController(MangaService mangaService, ReaderService readerService) {
         this.mangaService = mangaService;
+        this.readerService = readerService;
     }
 
     @GetMapping("/{id}")
     public Manga getManga(@PathVariable long id) {
         return mangaService.findById(id).orElseThrow(() -> new MangaNotFoundException(id));
+    }
+
+    @GetMapping("/{id}/chapters")
+    public List<Chapter> getChapters(@PathVariable long id) {
+        return readerService.chapters(getManga(id));
     }
 
     @GetMapping("/all")

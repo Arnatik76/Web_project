@@ -46,6 +46,16 @@ class MangaServiceTest {
     }
 
     @Test
+    void addGeneratesUniqueSlug() {
+        when(repository.existsBySlug("solo-leveling")).thenReturn(true);
+        when(repository.existsBySlug("solo-leveling-2")).thenReturn(true);
+        when(repository.save(ArgumentMatchers.any(Manga.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Manga saved = service.add(solo.withSlug(null));
+        assertEquals("solo-leveling-3", saved.slug());
+    }
+
+    @Test
     void similarExcludesItselfAndDuplicates() {
         when(repository.findByGenre("Боевик")).thenReturn(List.of(naruto, bleach));
         when(repository.findByType("MANGA")).thenReturn(List.of(naruto, bleach));

@@ -162,6 +162,34 @@ a.fact__sub:hover { color: var(--accent-text); }
   .facts { margin-top: var(--s-8); }
 }
 
+/* --- Chapter list ------------------------------------------------------- */
+.section-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--s-3); margin-bottom: var(--s-3); }
+.section-head__action { margin-left: auto; gap: 6px; font-size: 14px; }
+.section-head__action .icon { width: 16px; height: 16px; }
+
+.chapters { display: flex; flex-direction: column; border-top: 1px solid var(--separator); }
+.chapters.is-desc { flex-direction: column-reverse; }
+.chapters > li { border-bottom: 1px solid var(--separator); }
+
+.chapter-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-inline: calc(-1 * var(--s-3));
+  padding: var(--s-4) var(--s-3);
+  border-radius: var(--r-sm);
+  transition: background-color var(--dur-fast);
+}
+.chapter-row:hover { background: var(--fill); }
+.chapter-row__dot { width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; }
+.chapter-row.is-current .chapter-row__dot { background: var(--accent); }
+.chapter-row__text { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--s-3); }
+.chapter-row__label { font-weight: 600; }
+.chapter-row__title { font-size: 14px; color: var(--label-2); }
+.chapter-row__date { font-size: var(--fs-caption); color: var(--label-2); white-space: nowrap; }
+.chapter-row.is-read .chapter-row__label,
+.chapter-row.is-read .chapter-row__title { color: var(--label-3); }
+
 /* --- Error pages ------------------------------------------------------- */
 .error-page {
   display: grid;

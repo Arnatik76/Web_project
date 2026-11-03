@@ -23,6 +23,6 @@ public record NewMangaRequest(
         @NotBlank @Size(max = 500) @Pattern(regexp = "^(/|https://)[^\\s\"'<>]+$") String imageUrl
 ) {
     Manga toManga() {
-        return new Manga(null, title.trim(), author.trim(), genre.trim(), type, description.trim(), rating, imageUrl, null);
+        return new Manga(null, title.trim(), null, author.trim(), genre.trim(), type, description.trim(), rating, imageUrl, null);
     }
 }

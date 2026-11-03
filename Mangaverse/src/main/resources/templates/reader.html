@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark" xmlns:th="http://www.thymeleaf.org"
+      th:with="m=${view.manga}, c=${view.chapter}, total=${view.pages.size()}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title th:text="|${c.label()} · ${m.title} — MangaVerse|">Глава 1 · Title — MangaVerse</title>
+    <meta name="theme-color" content="#000000">
+    <meta name="robots" content="noindex">
+    <link rel="icon" th:href="@{/img/favicon.jpg}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200..800&display=swap">
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}">
+    <link rel="stylesheet" th:href="@{/css/reader.css}">
+    <script th:src="@{/js/reader.js}" defer></script>
+</head>
+<body class="reader-body" th:data-icons="@{/img/icons.svg}">
+
+<div class="reader" data-reader
+     data-mode="vertical" data-dir="rtl" data-fit="height" data-width="normal" data-gap="0" data-bg="black"
+     th:data-slug="${m.slug}"
+     th:data-type="${m.type.name()}"
+     th:data-chapter="${c.numberLabel()}"
+     th:data-chapter-label="${c.label()}"
+     th:data-manga-title="${m.title}"
+     th:data-cover="@{${m.imageUrl}}"
+     th:data-total="${total}"
+     th:data-prev-url="${view.previous != null} ? @{/read/{s}/{n}(s=${m.slug}, n=${view.previous.numberLabel()})} : null"
+     th:data-next-url="${view.next != null} ? @{/read/{s}/{n}(s=${m.slug}, n=${view.next.numberLabel()})} : null">
+
+    <!-- Apply saved reader settings before the pages are parsed: no flash of the wrong mode.
+         Without JavaScript the reader stays a plain vertical strip, which always works. -->
+    <script>
+        (function (r) {
+            var s = {};
+            try { s = JSON.parse(localStorage.getItem('mv-reader:' + r.dataset.slug) || '{}') || {}; } catch (e) {}
+            r.dataset.mode = s.mode || (r.dataset.type === 'MANGA' ? 'paged' : 'vertical');
+            ['dir', 'fit', 'width', 'gap', 'bg'].forEach(function (k) { if (s[k]) r.dataset[k] = s[k]; });
+            r.classList.add('has-js');
+        })(document.currentScript.parentNode);
+    </script>
+
+    <header class="reader-bar reader-bar--top">
+        <a class="icon-btn reader-btn" th:href="@{/title/{s}(s=${m.slug})}" aria-label="Назад к тайтлу">
+            <svg th:replace="~{fragments/layout :: icon('chevron-left')}"></svg>
+        </a>
+        <button class="reader-bar__heading" type="button" data-open="chapters" aria-haspopup="dialog">
+            <span class="reader-bar__manga" th:text="${m.title}">Title</span>
+            <span class="reader-bar__chapter">
+                <span th:text="${c.label()}">Глава 1</span>
+                <svg th:replace="~{fragments/layout :: icon('chevron-down')}"></svg>
+            </span>
+        </button>
+        <button class="icon-btn reader-btn" type="button" data-open="settings" aria-haspopup="dialog" aria-label="Настройки чтения">
+            <svg th:replace="~{fragments/layout :: icon('sliders')}"></svg>
+        </button>
+    </header>
+
+    <main class="reader-pages" data-pages>
+        <h1 class="visually-hidden" th:text="|${m.title}, ${c.label()}|">Title, Глава 1</h1>
+
+        <figure class="reader-page" th:each="p, st : ${view.pages}" th:id="|page-${p.idx}|">
+            <img th:src="@{${p.path}}" th:width="${p.width}" th:height="${p.height}"
+                 th:alt="|Страница ${p.idx} из ${total}|" decoding="async"
+                 th:attr="loading=${st.index < 2 ? 'eager' : 'lazy'}, fetchpriority=${st.index == 0 ? 'high' : null}">
+        </figure>
+
+        <section class="reader-end" data-end aria-label="Конец главы">
+            <p class="t-eyebrow" th:text="${total > 0} ? 'Конец главы' : 'Пустая глава'">Конец главы</p>
+            <h2 class="t-large" th:text="${total > 0} ? |${c.label()} прочитана| : 'В этой главе пока нет страниц'">Глава 1 прочитана</h2>
+            <div class="reader-end__actions">
+                <a class="btn btn--filled" th:if="${view.next != null}"
+                   th:href="@{/read/{s}/{n}(s=${m.slug}, n=${view.next.numberLabel()})}">
+                    <span th:text="|Дальше: ${view.next.label()}|">Дальше: Глава 2</span>
+                    <svg th:replace="~{fragments/layout :: icon('arrow-right')}"></svg>
+                </a>
+                <a class="btn btn--tinted" th:href="@{/title/{s}(s=${m.slug})}">К тайтлу</a>
+            </div>
+            <p class="reader-end__note" th:if="${view.next == null}">Это последняя глава. Новые появятся на странице тайтла.</p>
+        </section>
+    </main>
+
+    <footer class="reader-bar reader-bar--bottom">
+        <a class="icon-btn reader-btn" th:if="${view.previous != null}" aria-label="Предыдущая глава"
+           th:href="@{/read/{s}/{n}(s=${m.slug}, n=${view.previous.numberLabel()})}">
+            <svg th:replace="~{fragments/layout :: icon('chevron-left')}"></svg>
+        </a>
+        <span class="icon-btn reader-btn is-disabled" th:if="${view.previous == null}" aria-hidden="true">
+            <svg th:replace="~{fragments/layout :: icon('chevron-left')}"></svg>
+        </span>
+
+        <div class="reader-progress">
+            <input class="reader-slider" type="range" min="1" th:max="${total > 0 ? total : 1}" value="1" step="1"
+                   data-slider aria-label="Страница" th:disabled="${total < 2}">
+            <span class="reader-counter" aria-live="off"><span data-current>1</span> / <span th:text="${total}">12</span></span>
+        </div>
+
+        <a class="icon-btn reader-btn" th:if="${view.next != null}" aria-label="Следующая глава"
+           th:href="@{/read/{s}/{n}(s=${m.slug}, n=${view.next.numberLabel()})}">
+            <svg th:replace="~{fragments/layout :: icon('chevron-right')}"></svg>
+        </a>
+        <span class="icon-btn reader-btn is-disabled" th:if="${view.next == null}" aria-hidden="true">
+            <svg th:replace="~{fragments/layout :: icon('chevron-right')}"></svg>
+        </span>
+
+        <button class="icon-btn reader-btn" type="button" data-fullscreen aria-label="Полноэкранный режим" hidden>
+            <svg class="icon icon--enter" aria-hidden="true"><use th:href="@{/img/icons.svg} + '#maximize'"></use></svg>
+            <svg class="icon icon--exit" aria-hidden="true"><use th:href="@{/img/icons.svg} + '#minimize'"></use></svg>
+        </button>
+    </footer>
+
+    <dialog class="sheet" data-sheet="settings" aria-labelledby="settings-title">
+        <div class="sheet__head">
+            <h2 class="t-title" id="settings-title">Настройки чтения</h2>
+            <button class="icon-btn" type="button" data-close aria-label="Закрыть">
+                <svg th:replace="~{fragments/layout :: icon('x')}"></svg>
+            </button>
+        </div>
+        <div class="sheet__body">
+            <div class="sheet__row">
+                <span class="sheet__label">Режим</span>
+                <div class="segmented" role="group" aria-label="Режим">
+                    <button class="segmented__item" type="button" data-setting="mode" data-value="vertical">Лента</button>
+                    <button class="segmented__item" type="button" data-setting="mode" data-value="paged">Страницы</button>
+                </div>
+            </div>
+            <div class="sheet__row" data-only="paged">
+                <span class="sheet__label">Направление</span>
+                <div class="segmented" role="group" aria-label="Направление">
+                    <button class="segmented__item" type="button" data-setting="dir" data-value="rtl">Справа налево</button>
+                    <button class="segmented__item" type="button" data-setting="dir" data-value="ltr">Слева направо</button>
+                </div>
+            </div>
+            <div class="sheet__row" data-only="paged">
+                <span class="sheet__label">Масштаб</span>
+                <div class="segmented" role="group" aria-label="Масштаб">
+                    <button class="segmented__item" type="button" data-setting="fit" data-value="height">По высоте</button>
+                    <button class="segmented__item" type="button" data-setting="fit" data-value="width">По ширине</button>
+                </div>
+            </div>
+            <div class="sheet__row" data-only="vertical">
+                <span class="sheet__label">Ширина</span>
+                <div class="segmented" role="group" aria-label="Ширина">
+                    <button class="segmented__item" type="button" data-setting="width" data-value="narrow">Узкая</button>
+                    <button class="segmented__item" type="button" data-setting="width" data-value="normal">Обычная</button>
+                    <button class="segmented__item" type="button" data-setting="width" data-value="full">Во всю</button>
+                </div>
+            </div>
+            <div class="sheet__row" data-only="vertical">
+                <span class="sheet__label">Отступы</span>
+                <div class="segmented" role="group" aria-label="Отступы между страницами">
+                    <button class="segmented__item" type="button" data-setting="gap" data-value="0">Нет</button>
+                    <button class="segmented__item" type="button" data-setting="gap" data-value="1">Есть</button>
+                </div>
+            </div>
+            <div class="sheet__row">
+                <span class="sheet__label">Фон</span>
+                <div class="segmented" role="group" aria-label="Фон">
+                    <button class="segmented__item" type="button" data-setting="bg" data-value="black">Чёрный</button>
+                    <button class="segmented__item" type="button" data-setting="bg" data-value="gray">Серый</button>
+                    <button class="segmented__item" type="button" data-setting="bg" data-value="white">Белый</button>
+                </div>
+            </div>
+            <p class="sheet__hint">
+                <kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd> листать ·
+                <kbd class="kbd">F</kbd> полный экран ·
+                <kbd class="kbd">[</kbd> <kbd class="kbd">]</kbd> главы
+            </p>
+        </div>
+    </dialog>
+
+    <dialog class="sheet" data-sheet="chapters" aria-labelledby="chapters-title">
+        <div class="sheet__head">
+            <h2 class="t-title" id="chapters-title" th:text="${m.title}">Title</h2>
+            <button class="icon-btn" type="button" data-close aria-label="Закрыть">
+                <svg th:replace="~{fragments/layout :: icon('x')}"></svg>
+            </button>
+        </div>
+        <ol class="sheet__list">
+            <li th:each="ch : ${view.chapters}">
+                <a class="sheet__item" th:href="@{/read/{s}/{n}(s=${m.slug}, n=${ch.numberLabel()})}"
+                   th:attr="aria-current=${ch.id == c.id ? 'page' : null}">
+                    <span class="sheet__item-text">
+                        <span th:text="${ch.label()}">Глава 1</span>
+                        <span class="sheet__item-sub" th:if="${ch.title != null}" th:text="${ch.title}">Название</span>
+                    </span>
+                    <svg th:replace="~{fragments/layout :: icon('check')}"></svg>
+                </a>
+            </li>
+        </ol>
+    </dialog>
+</div>
+</body>
+</html>

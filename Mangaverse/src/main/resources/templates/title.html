@@ -16,14 +16,18 @@
                 <h1 class="t-display" th:text="${manga.title}">Title</h1>
                 <p class="title-hero__author" th:text="${manga.author}">Author</p>
                 <div class="title-hero__actions">
-                    <a class="btn btn--filled" aria-disabled="true" role="link">
+                    <a class="btn btn--filled" th:if="${firstChapter != null}" data-read-cta
+                       th:href="@{/read/{slug}/{n}(slug=${manga.slug}, n=${firstChapter.numberLabel()})}">
+                        <svg th:replace="~{fragments/layout :: icon('book')}"></svg><span data-read-cta-label>Начать читать</span>
+                    </a>
+                    <a class="btn btn--filled" th:if="${firstChapter == null}" aria-disabled="true" role="link">
                         <svg th:replace="~{fragments/layout :: icon('book')}"></svg>Читать
                     </a>
                     <button class="btn btn--tinted" type="button" data-share th:data-share-title="${manga.title}">
                         <svg th:replace="~{fragments/layout :: icon('share')}"></svg>Поделиться
                     </button>
                 </div>
-                <p class="title-hero__note">Читалка появится на следующем этапе.</p>
+                <p class="title-hero__note" th:if="${firstChapter == null}">Главы пока не загружены.</p>
             </div>
         </div>
     </section>
@@ -52,8 +56,10 @@
             </div>
             <div class="fact" role="listitem">
                 <span class="fact__label">Главы</span>
-                <span class="fact__value">—</span>
-                <span class="fact__sub">скоро</span>
+                <span class="fact__value" th:text="${chapters.isEmpty()} ? '—' : ${chapters.size()}">3</span>
+                <span class="fact__sub" th:if="${latestChapter != null}"
+                      th:text="|обновлено ${#temporals.format(latestChapter.publishedOn, 'd MMM')}|">обновлено 3 нояб.</span>
+                <span class="fact__sub" th:if="${latestChapter == null}">скоро</span>
             </div>
         </div>
 
@@ -64,11 +70,35 @@
         </section>
 
         <section class="section" aria-labelledby="chapters">
-            <h2 class="t-title" id="chapters">Главы</h2>
-            <div class="empty">
+            <div class="section-head">
+                <h2 class="t-title" id="chapters">Главы</h2>
+                <span class="t-caption" th:unless="${chapters.isEmpty()}" th:text="|${chapters.size()} ${chaptersLabel}|">3 главы</span>
+                <button class="btn btn--plain section-head__action" type="button" data-chapters-sort
+                        th:unless="${chapters.size() < 2}" aria-label="Изменить порядок глав">
+                    <svg th:replace="~{fragments/layout :: icon('sort')}"></svg><span data-chapters-sort-label>Сначала новые</span>
+                </button>
+            </div>
+
+            <!-- Newest first by default, like most readers; app.js marks read chapters from local progress. -->
+            <ol class="chapters is-desc" th:unless="${chapters.isEmpty()}" data-chapters th:data-slug="${manga.slug}">
+                <li th:each="c : ${chapters}">
+                    <a class="chapter-row" th:href="@{/read/{slug}/{n}(slug=${manga.slug}, n=${c.numberLabel()})}"
+                       th:data-chapter="${c.numberLabel()}">
+                        <span class="chapter-row__dot" aria-hidden="true"></span>
+                        <span class="chapter-row__text">
+                            <span class="chapter-row__label" th:text="${c.label()}">Глава 1</span>
+                            <span class="chapter-row__title" th:if="${c.title != null}" th:text="${c.title}">Название</span>
+                        </span>
+                        <time class="chapter-row__date" th:datetime="${c.publishedOn}"
+                              th:text="${#temporals.format(c.publishedOn, 'd MMMM yyyy')}">3 ноября 2026</time>
+                    </a>
+                </li>
+            </ol>
+
+            <div class="empty" th:if="${chapters.isEmpty()}">
                 <div class="empty__icon"><svg th:replace="~{fragments/layout :: icon('book')}"></svg></div>
                 <p class="empty__title">Главы пока не загружены</p>
-                <p>Как только появится читалка, главы будут здесь — с отметкой прочитанных.</p>
+                <p>Когда главы появятся, они будут здесь — с отметкой прочитанных.</p>
             </div>
         </section>
     </div>

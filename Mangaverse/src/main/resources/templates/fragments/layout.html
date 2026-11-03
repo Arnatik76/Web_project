@@ -96,7 +96,7 @@
 </footer>
 
 <!-- Cover card: alt is empty because the title is printed right below the image. -->
-<a th:fragment="card(m)" class="card" th:href="@{/title/{id}(id=${m.id})}">
+<a th:fragment="card(m)" class="card" th:href="@{/title/{slug}(slug=${m.slug})}">
     <div class="cover">
         <img th:src="@{${m.imageUrl}}" alt="" width="375" height="562" loading="lazy" decoding="async">
     </div>

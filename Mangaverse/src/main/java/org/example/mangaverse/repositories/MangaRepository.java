@@ -1,12 +1,19 @@
 package org.example.mangaverse.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.example.mangaverse.models.Manga;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 
 public interface MangaRepository extends ListCrudRepository<Manga, Long> {
+
+    @Query("SELECT * FROM manga WHERE slug = :slug")
+    Optional<Manga> findBySlug(String slug);
+
+    @Query("SELECT count(*) > 0 FROM manga WHERE slug = :slug")
+    boolean existsBySlug(String slug);
 
     @Query("SELECT * FROM manga ORDER BY rating DESC, title")
     List<Manga> findAllByPopularity();

@@ -63,6 +63,82 @@
     update();
   }
 
+  /* ---- Reading progress (written by reader.js) ------------------------- */
+  const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+  const CHAPTER = /^\d{1,5}(?:\.\d)?$/;
+  const readProgress = () => {
+    try {
+      const all = JSON.parse(localStorage.getItem('mv-progress')) || {};
+      // Only trust well-formed entries: they become links and image URLs.
+      return Object.values(all).filter((e) => e && SLUG.test(e.slug) && CHAPTER.test(String(e.chapter))
+        && typeof e.cover === 'string' && e.cover.startsWith('/') && !e.cover.startsWith('//'));
+    } catch {
+      return [];
+    }
+  };
+
+  // Home: "Продолжить чтение" shelf.
+  const continueSection = document.querySelector('[data-continue]');
+  if (continueSection) {
+    const entries = readProgress().filter((e) => !e.finished).sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 12);
+    if (entries.length) {
+      const track = continueSection.querySelector('[data-continue-track]');
+      track.replaceChildren(...entries.map((e) => {
+        const percent = Math.round((Number(e.page) / Math.max(Number(e.total), 1)) * 100);
+        const bar = el('span', { class: 'progress', role: 'progressbar', 'aria-valuenow': String(percent),
+          'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-label': `Прочитано ${percent}%` }, el('span'));
+        bar.firstChild.style.width = `${percent}%`;
+        return el('a', { class: 'card', href: `/read/${e.slug}/${e.chapter}?page=${Number(e.page) || 1}` },
+          el('div', { class: 'cover' }, el('img', { src: e.cover, alt: '', width: '375', height: '562', loading: 'lazy' }), bar),
+          el('h3', { class: 'card__title' }, String(e.title || '')),
+          el('p', { class: 'meta' }, el('span', {}, `Гл. ${e.chapter}`), el('span', {}, `стр. ${e.page} из ${e.total}`)));
+      }));
+      continueSection.hidden = false;
+    }
+  }
+
+  // Title page: mark read chapters and turn "Начать читать" into "Продолжить".
+  const chapterList = document.querySelector('[data-chapters]');
+  if (chapterList) {
+    const entry = readProgress().find((e) => e.slug === chapterList.dataset.slug);
+    const rows = [...chapterList.querySelectorAll('[data-chapter]')];
+    if (entry) {
+      const current = Number(entry.chapter);
+      rows.forEach((row) => {
+        const n = Number(row.dataset.chapter);
+        row.classList.toggle('is-read', n < current || (n === current && entry.finished));
+        row.classList.toggle('is-current', n === current && !entry.finished);
+      });
+      const cta = document.querySelector('[data-read-cta]');
+      const label = cta?.querySelector('[data-read-cta-label]');
+      if (cta && label) {
+        const nextRow = rows.find((row) => Number(row.dataset.chapter) > current);
+        if (!entry.finished) {
+          cta.href = `/read/${entry.slug}/${entry.chapter}?page=${Number(entry.page) || 1}`;
+          label.textContent = `Продолжить · гл. ${entry.chapter}`;
+        } else if (nextRow) {
+          cta.href = nextRow.getAttribute('href');
+          label.textContent = `Читать гл. ${nextRow.dataset.chapter}`;
+        } else {
+          label.textContent = 'Перечитать';
+        }
+      }
+    }
+
+    const sortButton = document.querySelector('[data-chapters-sort]');
+    const sortLabel = sortButton?.querySelector('[data-chapters-sort-label]');
+    const applyOrder = (desc) => {
+      chapterList.classList.toggle('is-desc', desc);
+      if (sortLabel) sortLabel.textContent = desc ? 'Сначала новые' : 'Сначала первые';
+    };
+    applyOrder(store.get('mv-chapters-order') !== 'asc');
+    sortButton?.addEventListener('click', () => {
+      const desc = !chapterList.classList.contains('is-desc');
+      applyOrder(desc);
+      store.set('mv-chapters-order', desc ? 'desc' : 'asc');
+    });
+  }
+
   /* ---- Shelves: arrow buttons that page through the row ---------------- */
   document.querySelectorAll('[data-shelf]').forEach((shelf) => {
     const track = shelf.querySelector('[data-shelf-track]');
@@ -229,7 +305,7 @@
         el('span', {}, manga.genre),
         el('span', { class: 'rating' }, icon('star'), Number(manga.rating).toFixed(1)));
       const option = el('a', {
-        class: 'result', href: `/title/${encodeURIComponent(manga.id)}`,
+        class: 'result', href: SLUG.test(manga.slug || '') ? `/title/${manga.slug}` : `/title/${encodeURIComponent(manga.id)}`,
         role: 'option', id: `spotlight-option-${index}`, 'aria-selected': 'false',
       },
       el('img', { class: 'result__cover', src: manga.imageUrl, alt: '', loading: 'lazy', width: '40', height: '60' }),

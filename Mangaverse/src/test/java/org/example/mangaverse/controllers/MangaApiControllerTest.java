@@ -18,6 +18,7 @@ import java.util.Optional;
 import org.example.mangaverse.models.Manga;
 import org.example.mangaverse.models.MangaType;
 import org.example.mangaverse.services.MangaService;
+import org.example.mangaverse.services.ReaderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -40,6 +41,9 @@ class MangaApiControllerTest {
 
     @MockitoBean
     MangaService mangaService;
+
+    @MockitoBean
+    ReaderService readerService;
 
     @Test
     void returnsMangaById() throws Exception {
@@ -101,13 +105,14 @@ class MangaApiControllerTest {
     void createsMangaWithValidToken() throws Exception {
         when(mangaService.add(any(Manga.class))).thenAnswer(inv -> {
             Manga m = inv.getArgument(0);
-            return new Manga(99L, m.title(), m.author(), m.genre(), m.type(), m.description(), m.rating(), m.imageUrl(), null);
+            return new Manga(99L, m.title(), "berserk", m.author(), m.genre(), m.type(), m.description(), m.rating(), m.imageUrl(), null);
         });
 
         mvc.perform(post("/api/manga/new").header("X-Admin-Token", "secret")
                         .contentType(MediaType.APPLICATION_JSON).content(VALID_BODY))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/api/manga/99"))
-                .andExpect(jsonPath("$.id").value(99));
+                .andExpect(jsonPath("$.id").value(99))
+                .andExpect(jsonPath("$.slug").value("berserk"));
     }
 }

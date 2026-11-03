@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import org.example.mangaverse.models.Manga;
 import org.example.mangaverse.models.MangaType;
+import org.example.mangaverse.models.Slugs;
 import org.example.mangaverse.repositories.MangaRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,10 @@ public class MangaService {
 
     public Optional<Manga> findById(long id) {
         return repository.findById(id);
+    }
+
+    public Optional<Manga> findBySlug(String slug) {
+        return repository.findBySlug(slug);
     }
 
     public List<Manga> popular() {
@@ -67,8 +72,14 @@ public class MangaService {
                 .toList();
     }
 
+    /** Saves a new title, deriving a unique slug from its title: "berserk", then "berserk-2", ... */
     public Manga add(Manga manga) {
-        return repository.save(manga);
+        String base = Slugs.of(manga.title());
+        String slug = base;
+        for (int n = 2; repository.existsBySlug(slug); n++) {
+            slug = base + "-" + n;
+        }
+        return repository.save(manga.withSlug(slug));
     }
 
     static String escapeLike(String value) {
