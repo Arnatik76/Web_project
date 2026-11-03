@@ -6,10 +6,10 @@
 
 <main>
     <section class="title-hero">
-        <div class="backdrop" aria-hidden="true"><img th:src="@{${manga.imageUrl}}" alt=""></div>
+        <div class="backdrop" aria-hidden="true"><img th:src="@{${@covers.thumbnail(manga.imageUrl)}}" alt=""></div>
         <div class="container title-hero__inner">
             <div class="cover title-hero__cover">
-                <img th:src="@{${manga.imageUrl}}" th:alt="|Обложка: ${manga.title}|" width="375" height="562" fetchpriority="high">
+                <picture th:replace="~{fragments/layout :: coverImage(${manga.imageUrl}, '(min-width: 720px) 260px, 168px', |Обложка: ${manga.title}|, true)}"></picture>
             </div>
             <div class="title-hero__info">
                 <p class="t-eyebrow" th:text="${manga.type.label}">Манхва</p>

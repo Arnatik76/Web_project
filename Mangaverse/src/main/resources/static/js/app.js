@@ -320,6 +320,15 @@
     }
   }
 
+  // Small WebP variant for local covers (see scripts/optimize_covers.py), original otherwise.
+  function thumbnail(url) {
+    const local = /^\/images\/([\w-]+)\.(?:jpe?g|png)$/.exec(url || '');
+    const img = el('img', { class: 'result__cover', alt: '', loading: 'lazy', width: '40', height: '60',
+      src: local ? `/images/variants/${local[1]}-192.webp` : url });
+    if (local) img.addEventListener('error', () => { img.src = url; }, { once: true });
+    return img;
+  }
+
   function hint(message) {
     items = [];
     active = -1;
@@ -337,7 +346,7 @@
         class: 'result', href: SLUG.test(manga.slug || '') ? `/title/${manga.slug}` : `/title/${encodeURIComponent(manga.id)}`,
         role: 'option', id: `spotlight-option-${index}`, 'aria-selected': 'false',
       },
-      el('img', { class: 'result__cover', src: manga.imageUrl, alt: '', loading: 'lazy', width: '40', height: '60' }),
+      thumbnail(manga.imageUrl),
       el('div', { class: 'result__text' }, el('p', { class: 'result__title' }, manga.title), meta),
       icon('return', 'icon result__go'));
       option.addEventListener('mousemove', () => { if (active !== index) select(index, false); });

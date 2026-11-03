@@ -9,10 +9,10 @@
 
     <section class="container" th:if="${featured != null}" th:with="m=${featured}">
         <article class="hero">
-            <div class="backdrop" aria-hidden="true"><img th:src="@{${m.imageUrl}}" alt=""></div>
+            <div class="backdrop" aria-hidden="true"><img th:src="@{${@covers.thumbnail(m.imageUrl)}}" alt=""></div>
             <div class="hero__inner">
                 <a class="cover hero__cover" th:href="@{/title/{slug}(slug=${m.slug})}" tabindex="-1" aria-hidden="true">
-                    <img th:src="@{${m.imageUrl}}" alt="" width="375" height="562" fetchpriority="high">
+                    <picture th:replace="~{fragments/layout :: coverImage(${m.imageUrl}, '(min-width: 720px) 220px, 148px', '', true)}"></picture>
                 </a>
                 <div class="hero__text">
                     <p class="t-eyebrow">Выбор недели</p>
