@@ -1,48 +1,77 @@
 package org.example.mangaverse.services;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import org.example.mangaverse.models.Manga;
+import org.example.mangaverse.models.MangaType;
 import org.example.mangaverse.repositories.MangaRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class MangaService {
 
-    private final MangaRepository mangaRepository;
+    private final MangaRepository repository;
 
-    public MangaService(MangaRepository mangaRepository) {
-        this.mangaRepository = mangaRepository;
+    public MangaService(MangaRepository repository) {
+        this.repository = repository;
     }
 
-    public Manga getMangaById(Long id) {
-        return mangaRepository.getMangaById(id);
+    public Optional<Manga> findById(long id) {
+        return repository.findById(id);
     }
 
-    public List<Manga> getAllManga() {
-        return mangaRepository.findAll();
+    public List<Manga> popular() {
+        return repository.findAllByPopularity();
     }
 
-    public void addManga(Manga manga) {
-        String title = manga.getTitle();
-        String author = manga.getAuthor();
-        String genre = manga.getGenre();
-        String description = manga.getDescription();
-        float rating = manga.getRating();
-        String imageUrl = manga.getImageUrl();
-
-        mangaRepository.insertManga(title, author, genre, description, rating, imageUrl);
+    public List<Manga> byGenre(String genre) {
+        return repository.findByGenre(genre);
     }
 
-    public List<Manga> searchManga(String query) {
-        return mangaRepository.searchManga(query);
+    public List<Manga> byType(MangaType type) {
+        return repository.findByType(type.name());
     }
 
-    public List<Manga> getPopularManga() {
-        return mangaRepository.getPopularManga();
+    public List<String> genres() {
+        return repository.findGenres();
     }
 
-    public List<Manga> getMangaByGenre(String genre) {
-        return mangaRepository.getMangaByGenre(genre);
+    /** Case-insensitive substring search over title, author and genre. */
+    public List<Manga> search(String query) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+        return repository.search("%" + escapeLike(query.trim()) + "%");
+    }
+
+    /** Catalog listing: every filter is optional. The dataset is small, so filtering and sorting happen in memory. */
+    public List<Manga> catalog(String query, String genre, MangaType type, CatalogSort sort) {
+        List<Manga> base = (query != null && !query.isBlank()) ? search(query) : popular();
+        return base.stream()
+                .filter(m -> genre == null || genre.equals(m.genre()))
+                .filter(m -> type == null || type == m.type())
+                .sorted(sort.comparator())
+                .toList();
+    }
+
+    /** Titles similar to the given one: same genre first, then same format, best rated first. */
+    public List<Manga> similar(Manga manga, int limit) {
+        var sameGenre = byGenre(manga.genre()).stream();
+        var sameType = byType(manga.type()).stream();
+        return Stream.concat(sameGenre, sameType)
+                .filter(m -> !m.id().equals(manga.id()))
+                .distinct()
+                .limit(limit)
+                .toList();
+    }
+
+    public Manga add(Manga manga) {
+        return repository.save(manga);
+    }
+
+    static String escapeLike(String value) {
+        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 }
