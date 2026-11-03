@@ -25,6 +25,7 @@
 }
 
 /* --- Home: featured hero ----------------------------------------------- */
+[data-continue]:not([hidden]) { padding-top: var(--s-6); }
 .hero {
   position: relative;
   margin-top: var(--s-6);

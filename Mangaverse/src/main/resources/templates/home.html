@@ -7,6 +7,24 @@
 <main>
     <h1 class="visually-hidden">MangaVerse — манга и манхва</h1>
 
+    <!-- First thing a returning reader sees. Filled by app.js from this device's progress; hidden when empty. -->
+    <section class="section shelf" data-shelf data-continue hidden>
+        <div class="container">
+            <div class="shelf__head">
+                <h2 class="t-title">Продолжить чтение</h2>
+                <div class="shelf__arrows">
+                    <button class="icon-btn" type="button" data-shelf-prev aria-label="Прокрутить назад" disabled>
+                        <svg th:replace="~{fragments/layout :: icon('chevron-left')}"></svg>
+                    </button>
+                    <button class="icon-btn" type="button" data-shelf-next aria-label="Прокрутить вперёд">
+                        <svg th:replace="~{fragments/layout :: icon('chevron-right')}"></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="shelf__track shelf__track--wide" data-shelf-track data-continue-track></div>
+        </div>
+    </section>
+
     <section class="container" th:if="${featured != null}" th:with="m=${featured}">
         <article class="hero">
             <div class="backdrop" aria-hidden="true"><img th:src="@{${@covers.thumbnail(m.imageUrl)}}" alt=""></div>
@@ -35,24 +53,6 @@
                 </div>
             </div>
         </article>
-    </section>
-
-    <!-- Filled by app.js from reading progress saved in this browser; hidden when there is none. -->
-    <section class="section shelf" data-shelf data-continue hidden>
-        <div class="container">
-            <div class="shelf__head">
-                <h2 class="t-title">Продолжить чтение</h2>
-                <div class="shelf__arrows">
-                    <button class="icon-btn" type="button" data-shelf-prev aria-label="Прокрутить назад" disabled>
-                        <svg th:replace="~{fragments/layout :: icon('chevron-left')}"></svg>
-                    </button>
-                    <button class="icon-btn" type="button" data-shelf-next aria-label="Прокрутить вперёд">
-                        <svg th:replace="~{fragments/layout :: icon('chevron-right')}"></svg>
-                    </button>
-                </div>
-            </div>
-            <div class="shelf__track shelf__track--wide" data-shelf-track data-continue-track></div>
-        </div>
     </section>
 
     <section th:replace="~{fragments/layout :: shelf('Популярное', ${popular}, @{/catalog})}"></section>
