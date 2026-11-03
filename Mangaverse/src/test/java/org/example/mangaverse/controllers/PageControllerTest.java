@@ -35,7 +35,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(PageController.class)
-@TestPropertySource(properties = {"spring.web.locale=ru", "spring.web.locale-resolver=fixed"})
+@TestPropertySource(properties = {"spring.web.locale=ru", "spring.web.locale-resolver=fixed", "mangaverse.catalog.page-size=2"})
 class PageControllerTest {
 
     @Autowired
@@ -76,6 +76,29 @@ class PageControllerTest {
                 .andExpect(content().string(containsString("&lt;img src=x onerror=alert(1)&gt;")))
                 .andExpect(content().string(not(containsString("<img src=x"))))
                 .andExpect(content().string(containsString("1 тайтл")));
+    }
+
+    @Test
+    void catalogPaginatesWithLoadMoreLink() throws Exception {
+        Manga bleach = manga(3, "Bleach", "Боевик", MangaType.MANGA, "4.3");
+        when(mangaService.catalog(any(), eq("Боевик"), any(), any())).thenReturn(List.of(naruto, solo, bleach));
+        when(mangaService.genres()).thenReturn(List.of("Боевик"));
+
+        mvc.perform(get("/catalog").param("genre", "Боевик"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("3 тайтла")))
+                .andExpect(content().string(containsString("/title/solo-leveling")))
+                .andExpect(content().string(not(containsString("/title/bleach"))))
+                .andExpect(content().string(containsString("page=2")));
+
+        mvc.perform(get("/catalog").param("genre", "Боевик").param("page", "2"))
+                .andExpect(content().string(containsString("/title/bleach")))
+                .andExpect(content().string(not(containsString("/title/naruto"))))
+                .andExpect(content().string(not(containsString("data-load-more"))));
+
+        // Out-of-range pages clamp to the last page instead of showing nothing.
+        mvc.perform(get("/catalog").param("genre", "Боевик").param("page", "99"))
+                .andExpect(content().string(containsString("/title/bleach")));
     }
 
     @Test

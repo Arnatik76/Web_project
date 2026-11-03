@@ -18,7 +18,7 @@ public interface MangaRepository extends ListCrudRepository<Manga, Long> {
     @Query("SELECT * FROM manga ORDER BY rating DESC, title")
     List<Manga> findAllByPopularity();
 
-    @Query("SELECT * FROM manga WHERE genre = :genre ORDER BY rating DESC, title")
+    @Query("SELECT * FROM manga WHERE :genre = ANY(genres) ORDER BY rating DESC, title")
     List<Manga> findByGenre(String genre);
 
     @Query("SELECT * FROM manga WHERE type = :type ORDER BY rating DESC, title")
@@ -27,12 +27,13 @@ public interface MangaRepository extends ListCrudRepository<Manga, Long> {
     /** {@code pattern} must already be a LIKE pattern with wildcards escaped, see {@code MangaService#search}. */
     @Query("""
             SELECT * FROM manga
-            WHERE title ILIKE :pattern OR author ILIKE :pattern OR genre ILIKE :pattern
+            WHERE title ILIKE :pattern OR author ILIKE :pattern
+               OR EXISTS (SELECT 1 FROM unnest(genres) AS g WHERE g ILIKE :pattern)
             ORDER BY rating DESC, title
             """)
     List<Manga> search(String pattern);
 
     /** Genres ordered by how many titles they have, most common first. */
-    @Query("SELECT genre FROM manga GROUP BY genre ORDER BY count(*) DESC, genre")
+    @Query("SELECT g FROM manga, unnest(genres) AS g GROUP BY g ORDER BY count(*) DESC, g")
     List<String> findGenres();
 }

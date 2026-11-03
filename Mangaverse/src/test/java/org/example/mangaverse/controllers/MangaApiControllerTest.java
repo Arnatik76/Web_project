@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class MangaApiControllerTest {
 
     private static final String VALID_BODY = """
-            {"title":"Berserk","author":"Kentaro Miura","genre":"Драма","type":"MANGA",
+            {"title":"Berserk","author":"Kentaro Miura","genre":"Драма","genres":["Фэнтези","Драма"],"type":"MANGA",
              "description":"Dark fantasy","rating":4.9,"imageUrl":"/images/berserk.jpg"}
             """;
 
@@ -105,7 +105,7 @@ class MangaApiControllerTest {
     void createsMangaWithValidToken() throws Exception {
         when(mangaService.add(any(Manga.class))).thenAnswer(inv -> {
             Manga m = inv.getArgument(0);
-            return new Manga(99L, m.title(), "berserk", m.author(), m.genre(), m.type(), m.description(), m.rating(), m.imageUrl(), null);
+            return new Manga(99L, m.title(), "berserk", m.author(), m.genre(), m.genres(), m.type(), m.description(), m.rating(), m.imageUrl(), null);
         });
 
         mvc.perform(post("/api/manga/new").header("X-Admin-Token", "secret")
@@ -113,6 +113,9 @@ class MangaApiControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/api/manga/99"))
                 .andExpect(jsonPath("$.id").value(99))
-                .andExpect(jsonPath("$.slug").value("berserk"));
+                .andExpect(jsonPath("$.slug").value("berserk"))
+                // Primary genre first, duplicates removed.
+                .andExpect(jsonPath("$.genres[0]").value("Драма"))
+                .andExpect(jsonPath("$.genres.length()").value(2));
     }
 }

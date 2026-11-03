@@ -3,6 +3,7 @@ package org.example.mangaverse;
 import java.math.BigDecimal;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.example.mangaverse.models.Chapter;
 import org.example.mangaverse.models.ChapterPage;
@@ -16,7 +17,7 @@ public final class TestData {
     }
 
     public static Manga manga(long id, String title, String genre, MangaType type, String rating) {
-        return new Manga(id, title, Slugs.of(title), "Author", genre, type, "Description of " + title,
+        return new Manga(id, title, Slugs.of(title), "Author", genre, List.of(genre), type, "Description of " + title,
                 new BigDecimal(rating), "/images/naruto_cover_page.jpg", null);
     }
 

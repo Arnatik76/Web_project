@@ -55,13 +55,13 @@ public class MangaService {
     public List<Manga> catalog(String query, String genre, MangaType type, CatalogSort sort) {
         List<Manga> base = (query != null && !query.isBlank()) ? search(query) : popular();
         return base.stream()
-                .filter(m -> genre == null || genre.equals(m.genre()))
+                .filter(m -> genre == null || m.genres().contains(genre))
                 .filter(m -> type == null || type == m.type())
                 .sorted(sort.comparator())
                 .toList();
     }
 
-    /** Titles similar to the given one: same genre first, then same format, best rated first. */
+    /** Titles similar to the given one: same primary genre first, then same format, best rated first. */
     public List<Manga> similar(Manga manga, int limit) {
         var sameGenre = byGenre(manga.genre()).stream();
         var sameType = byType(manga.type()).stream();

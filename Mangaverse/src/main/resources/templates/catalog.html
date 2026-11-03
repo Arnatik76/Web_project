@@ -49,8 +49,13 @@
             <a th:href="${filter.withoutQuery().url}">сбросить</a>
         </p>
 
-        <div class="grid" th:unless="${results.isEmpty()}">
+        <div class="grid" th:unless="${results.isEmpty()}" data-results>
             <th:block th:each="m : ${results}"><a th:replace="~{fragments/layout :: card(${m})}"></a></th:block>
+        </div>
+
+        <!-- Works as a plain link; app.js turns it into infinite scroll. -->
+        <div class="load-more" th:if="${nextPageUrl != null}">
+            <a class="btn btn--tinted" th:href="${nextPageUrl}" data-load-more>Показать ещё</a>
         </div>
 
         <div class="empty" th:if="${results.isEmpty()}">

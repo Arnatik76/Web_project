@@ -53,11 +53,17 @@ public record CatalogFilter(String q, String genre, MangaType type, CatalogSort 
     }
 
     public String getUrl() {
+        return pageUrl(1);
+    }
+
+    /** URL of the given 1-based results page with the same filters. */
+    public String pageUrl(int page) {
         UriComponentsBuilder uri = UriComponentsBuilder.fromPath("/catalog");
         if (q != null) uri.queryParam("q", q);
         if (genre != null) uri.queryParam("genre", genre);
         if (type != null) uri.queryParam("type", type.name().toLowerCase());
         if (sort != CatalogSort.POPULAR) uri.queryParam("sort", sort.name().toLowerCase());
+        if (page > 1) uri.queryParam("page", page);
         return uri.encode().build().toUriString();
     }
 

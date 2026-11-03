@@ -12,9 +12,12 @@
                 <img th:src="@{${manga.imageUrl}}" th:alt="|Обложка: ${manga.title}|" width="375" height="562" fetchpriority="high">
             </div>
             <div class="title-hero__info">
-                <p class="t-eyebrow" th:text="|${manga.type.label} · ${manga.genre}|">Манхва · Фэнтези</p>
+                <p class="t-eyebrow" th:text="${manga.type.label}">Манхва</p>
                 <h1 class="t-display" th:text="${manga.title}">Title</h1>
                 <p class="title-hero__author" th:text="${manga.author}">Author</p>
+                <nav class="title-hero__genres" aria-label="Жанры">
+                    <a class="chip" th:each="g : ${manga.genres}" th:href="@{/catalog(genre=${g})}" th:text="${g}">Жанр</a>
+                </nav>
                 <div class="title-hero__actions">
                     <a class="btn btn--filled" th:if="${firstChapter != null}" data-read-cta
                        th:href="@{/read/{slug}/{n}(slug=${manga.slug}, n=${firstChapter.numberLabel()})}">

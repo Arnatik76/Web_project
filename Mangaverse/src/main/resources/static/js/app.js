@@ -158,6 +158,35 @@
     sync();
   });
 
+  /* ---- Catalog: infinite scroll on top of the "Показать ещё" link -------- */
+  const grid = document.querySelector('[data-results]');
+  const more = document.querySelector('[data-load-more]');
+  if (grid && more && 'IntersectionObserver' in window) {
+    let loading = false;
+    const loadNext = async () => {
+      if (loading || !more.isConnected) return;
+      loading = true;
+      more.setAttribute('aria-busy', 'true');
+      try {
+        const response = await fetch(more.href, { headers: { Accept: 'text/html' } });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+        grid.append(...page.querySelectorAll('[data-results] > .card'));
+        const next = page.querySelector('[data-load-more]');
+        if (next) more.href = next.getAttribute('href');
+        else more.parentElement.remove();
+      } catch {
+        // Leave the link in place: tapping it still loads the next page normally.
+      } finally {
+        loading = false;
+        more.removeAttribute('aria-busy');
+      }
+    };
+    new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) loadNext();
+    }, { rootMargin: '600px 0px' }).observe(more);
+  }
+
   /* ---- Long text: "Ещё" only when the text is actually clamped ---------- */
   document.querySelectorAll('[data-clamp]').forEach((text) => {
     const toggle = text.nextElementSibling;

@@ -46,6 +46,15 @@ class MangaServiceTest {
     }
 
     @Test
+    void genreFilterMatchesSecondaryGenres() {
+        Manga hybrid = new Manga(4L, "Hybrid", "hybrid", "A", "Драма", List.of("Драма", "Боевик"),
+                MangaType.MANGA, "d", new java.math.BigDecimal("4.0"), "/images/x.jpg", null);
+        when(repository.findAllByPopularity()).thenReturn(List.of(naruto, hybrid, solo));
+
+        assertEquals(List.of(naruto, hybrid), service.catalog(null, "Боевик", null, CatalogSort.POPULAR));
+    }
+
+    @Test
     void addGeneratesUniqueSlug() {
         when(repository.existsBySlug("solo-leveling")).thenReturn(true);
         when(repository.existsBySlug("solo-leveling-2")).thenReturn(true);

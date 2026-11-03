@@ -13,6 +13,7 @@ import org.example.mangaverse.services.CatalogSort;
 import org.example.mangaverse.services.MangaService;
 import org.example.mangaverse.services.ReaderService;
 import org.example.mangaverse.web.CatalogFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,10 +33,13 @@ public class PageController {
 
     private final MangaService mangaService;
     private final ReaderService readerService;
+    private final int catalogPageSize;
 
-    public PageController(MangaService mangaService, ReaderService readerService) {
+    public PageController(MangaService mangaService, ReaderService readerService,
+                          @Value("${mangaverse.catalog.page-size:24}") int catalogPageSize) {
         this.mangaService = mangaService;
         this.readerService = readerService;
+        this.catalogPageSize = catalogPageSize;
     }
 
     @GetMapping("/")
@@ -62,11 +66,17 @@ public class PageController {
                           @RequestParam(required = false) String genre,
                           @RequestParam(required = false) String type,
                           @RequestParam(required = false) String sort,
+                          @RequestParam(defaultValue = "1") int page,
                           Model model) {
         CatalogFilter filter = new CatalogFilter(q, genre, MangaType.parse(type), CatalogSort.parse(sort));
         List<Manga> results = mangaService.catalog(filter.q(), filter.genre(), filter.type(), filter.sort());
+        int pages = Math.max(1, (results.size() + catalogPageSize - 1) / catalogPageSize);
+        int current = Math.min(Math.max(page, 1), pages);
+        int from = (current - 1) * catalogPageSize;
         model.addAttribute("filter", filter);
-        model.addAttribute("results", results);
+        model.addAttribute("results", results.subList(from, Math.min(from + catalogPageSize, results.size())));
+        model.addAttribute("page", current);
+        model.addAttribute("nextPageUrl", current < pages ? filter.pageUrl(current + 1) : null);
         model.addAttribute("resultsLabel", results.size() + " " + plural(results.size(), "тайтл", "тайтла", "тайтлов"));
         model.addAttribute("genres", mangaService.genres());
         model.addAttribute("types", MangaType.values());
