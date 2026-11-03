@@ -9,7 +9,7 @@
              th:data-cover="@{${@covers.thumbnail(manga.imageUrl)}}">
         <div class="backdrop" aria-hidden="true"><img th:src="@{${@covers.thumbnail(manga.imageUrl)}}" alt=""></div>
         <div class="container title-hero__inner">
-            <div class="cover title-hero__cover">
+            <div class="cover title-hero__cover" style="view-transition-name: cover">
                 <picture th:replace="~{fragments/layout :: coverImage(${manga.imageUrl}, '(min-width: 720px) 260px, 168px', |Обложка: ${manga.title}|, true)}"></picture>
             </div>
             <div class="title-hero__info">
@@ -120,7 +120,16 @@
     </th:block>
 </main>
 
+<!-- Phones: the read button follows you once the hero scrolls away, like the App Store "Get" button. -->
+<div class="action-bar" data-action-bar th:if="${firstChapter != null}" aria-hidden="true" inert>
+    <img class="action-bar__cover" th:src="@{${@covers.thumbnail(manga.imageUrl)}}" alt="" width="36" height="54" loading="lazy">
+    <span class="action-bar__title" th:text="${manga.title}">Title</span>
+    <a class="btn btn--filled" data-action-bar-cta
+       th:href="@{/read/{slug}/{n}(slug=${manga.slug}, n=${firstChapter.numberLabel()})}">Читать</a>
+</div>
+
 <dialog class="sheet" data-library-sheet aria-labelledby="library-sheet-title">
+    <div class="sheet__grabber" aria-hidden="true"></div>
     <div class="sheet__head">
         <h2 class="t-title" id="library-sheet-title">В библиотеку</h2>
         <button class="icon-btn" type="button" data-close aria-label="Закрыть">

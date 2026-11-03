@@ -7,7 +7,13 @@
     <title th:text="|${c.label()} · ${m.title} — MangaVerse|">Глава 1 · Title — MangaVerse</title>
     <meta name="theme-color" content="#000000">
     <meta name="robots" content="noindex">
-    <link rel="icon" th:href="@{/img/favicon.jpg}">
+    <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
+    <link rel="apple-touch-icon" th:href="@{/img/apple-touch-icon.png}">
+    <link rel="manifest" th:href="@{/manifest.webmanifest}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="MangaVerse">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200..800&display=swap">
@@ -21,6 +27,7 @@
         <meta name="_csrf_header" th:content="${_csrf.headerName}">
     </th:block>
     <script th:src="@{/js/sync.js}" defer></script>
+    <script th:src="@{/js/sheets.js}" defer></script>
     <script th:src="@{/js/reader.js}" defer></script>
 </head>
 <body class="reader-body" th:data-icons="@{/img/icons.svg}">
@@ -119,6 +126,7 @@
     </footer>
 
     <dialog class="sheet" data-sheet="settings" aria-labelledby="settings-title">
+        <div class="sheet__grabber" aria-hidden="true"></div>
         <div class="sheet__head">
             <h2 class="t-title" id="settings-title">Настройки чтения</h2>
             <button class="icon-btn" type="button" data-close aria-label="Закрыть">
@@ -179,6 +187,7 @@
     </dialog>
 
     <dialog class="sheet" data-sheet="chapters" aria-labelledby="chapters-title">
+        <div class="sheet__grabber" aria-hidden="true"></div>
         <div class="sheet__head">
             <h2 class="t-title" id="chapters-title" th:text="${m.title}">Title</h2>
             <button class="icon-btn" type="button" data-close aria-label="Закрыть">

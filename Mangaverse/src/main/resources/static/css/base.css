@@ -7,8 +7,22 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  scroll-padding-top: calc(var(--header-h) + var(--s-4));
+  -webkit-tap-highlight-color: transparent;
+  scroll-padding-top: calc(var(--header-h) + var(--safe-top) + var(--s-4));
 }
+
+/* iOS: honour the system text size setting (Dynamic Type). Everything is sized in rem. */
+@supports (font: -apple-system-body) {
+  html { font: -apple-system-body; }
+}
+
+/* Remove the double-tap zoom delay on controls. */
+a, button, input, select, label, summary { touch-action: manipulation; }
+
+/* Cross-document page transitions (Chrome, Safari 18.2+); a no-op elsewhere. */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--dur); }
+::view-transition-group(cover) { animation-duration: var(--dur-slow); animation-timing-function: var(--ease-spring); }
 
 body {
   margin: 0;
@@ -92,6 +106,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 .section:last-child { padding-bottom: var(--s-16); }
 
 @media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
   *, *::before, *::after {
     animation-duration: 1ms !important;
     transition-duration: 1ms !important;

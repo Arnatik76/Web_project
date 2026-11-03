@@ -22,7 +22,13 @@
                 <input type="hidden" name="sort" th:if="${filter.sort.name() != 'POPULAR'}" th:value="${#strings.toLowerCase(filter.sort.name())}">
             </form>
 
-            <nav class="segmented" aria-label="Формат">
+            <button class="btn btn--tinted filter-button" type="button" data-filters-open aria-haspopup="dialog"
+                    th:with="active=${(filter.type != null ? 1 : 0) + (filter.genre != null ? 1 : 0)}">
+                <svg th:replace="~{fragments/layout :: icon('sliders')}"></svg>Фильтры
+                <span class="badge" th:if="${active > 0}" th:text="${active}">1</span>
+            </button>
+
+            <nav class="segmented toolbar__types" aria-label="Формат">
                 <a class="segmented__item" th:href="${filter.withType(null).url}"
                    th:attr="aria-current=${filter.type == null ? 'true' : null}">Все</a>
                 <a class="segmented__item" th:each="t : ${types}" th:href="${filter.withType(t).url}"
@@ -35,7 +41,7 @@
             </nav>
         </div>
 
-        <nav class="chips" aria-label="Жанры">
+        <nav class="chips toolbar__genres" aria-label="Жанры">
             <a class="chip" th:href="${filter.withGenre(null).url}"
                th:attr="aria-current=${filter.genre == null ? 'true' : null}">Все жанры</a>
             <a class="chip" th:each="g : ${genres}" th:href="${filter.withGenre(g).url}"
@@ -66,6 +72,44 @@
         </div>
     </section>
 </main>
+
+<dialog class="sheet" data-filters-sheet aria-labelledby="filters-title">
+    <div class="sheet__grabber" aria-hidden="true"></div>
+    <div class="sheet__head">
+        <h2 class="t-title" id="filters-title">Фильтры</h2>
+        <button class="icon-btn" type="button" data-close aria-label="Закрыть">
+            <svg th:replace="~{fragments/layout :: icon('x')}"></svg>
+        </button>
+    </div>
+    <div class="sheet__body">
+        <div class="sheet__group">
+            <span class="sheet__label">Формат</span>
+            <nav class="segmented segmented--full" aria-label="Формат">
+                <a class="segmented__item" th:href="${filter.withType(null).url}"
+                   th:attr="aria-current=${filter.type == null ? 'true' : null}">Все</a>
+                <a class="segmented__item" th:each="t : ${types}" th:href="${filter.withType(t).url}"
+                   th:attr="aria-current=${filter.type == t ? 'true' : null}" th:text="${t.label}">Манга</a>
+            </nav>
+        </div>
+        <div class="sheet__group">
+            <span class="sheet__label">Сортировка</span>
+            <nav class="segmented segmented--full" aria-label="Сортировка">
+                <a class="segmented__item" th:each="s : ${sorts}" th:href="${filter.withSort(s).url}"
+                   th:attr="aria-current=${filter.sort == s ? 'true' : null}" th:text="${s.label}">Популярные</a>
+            </nav>
+        </div>
+        <div class="sheet__group">
+            <span class="sheet__label">Жанр</span>
+            <nav class="chips chips--wrap" aria-label="Жанры">
+                <a class="chip" th:href="${filter.withGenre(null).url}"
+                   th:attr="aria-current=${filter.genre == null ? 'true' : null}">Все жанры</a>
+                <a class="chip" th:each="g : ${genres}" th:href="${filter.withGenre(g).url}"
+                   th:attr="aria-current=${filter.genre == g ? 'true' : null}" th:text="${g}">Жанр</a>
+            </nav>
+        </div>
+        <a class="btn btn--tinted" th:href="@{/catalog}" th:if="${filter.filtered}">Сбросить всё</a>
+    </div>
+</dialog>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <nav th:replace="~{fragments/layout :: tabbar}"></nav>

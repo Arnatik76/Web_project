@@ -234,6 +234,62 @@
     });
   }
 
+  /* ---- iOS-style navigation title -------------------------------------- */
+  // The page's large title shrinks into the bar when it scrolls under it (phones; see CSS).
+  const headerTitle = document.querySelector('[data-header-title]');
+  const largeTitle = document.querySelector('main h1:not(.visually-hidden)');
+  if (header && headerTitle && largeTitle) {
+    headerTitle.textContent = largeTitle.textContent.trim();
+    new IntersectionObserver(([entry]) => {
+      header.classList.toggle('has-title', !entry.isIntersecting && entry.boundingClientRect.top < 0);
+    }, { rootMargin: `-${header.offsetHeight}px 0px 0px 0px` }).observe(largeTitle);
+  }
+
+  /* ---- Title page: floating read button once the hero is gone ----------- */
+  const actionBar = document.querySelector('[data-action-bar]');
+  const heroActions = document.querySelector('.title-hero__actions');
+  if (actionBar && heroActions) {
+    const mainCta = document.querySelector('[data-read-cta]');
+    const barCta = actionBar.querySelector('[data-action-bar-cta]');
+    const syncCta = () => {
+      if (!mainCta || !barCta) return;
+      barCta.href = mainCta.href;
+      const label = mainCta.querySelector('[data-read-cta-label]')?.textContent || 'Читать';
+      barCta.textContent = label.startsWith('Продолжить') ? 'Продолжить' : label.replace('Начать читать', 'Читать');
+    };
+    syncCta();
+    document.addEventListener('mv:change', () => requestAnimationFrame(syncCta));
+    new IntersectionObserver(([entry]) => {
+      const show = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+      actionBar.classList.toggle('is-visible', show);
+      actionBar.toggleAttribute('inert', !show);
+      actionBar.setAttribute('aria-hidden', String(!show));
+    }).observe(heroActions);
+  }
+
+  /* ---- Cover "flies" from the card into the title page ------------------ */
+  // Only the tapped card gets the shared name, so duplicates on a page never clash.
+  document.addEventListener('click', (event) => {
+    const card = event.target instanceof Element ? event.target.closest('a.card[href^="/title/"]') : null;
+    if (!card || event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+    document.querySelectorAll('[style*="view-transition-name: cover"]').forEach((node) => { node.style.viewTransitionName = ''; });
+    const cover = card.querySelector('.cover');
+    if (cover) cover.style.viewTransitionName = 'cover';
+  });
+  // Coming back with the browser's back button: drop stale names left on the cached page.
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) document.querySelectorAll('a.card .cover').forEach((node) => { node.style.viewTransitionName = ''; });
+  });
+
+  /* ---- Catalog filters sheet (phones) ----------------------------------- */
+  const filtersSheet = document.querySelector('[data-filters-sheet]');
+  const filtersButton = document.querySelector('[data-filters-open]');
+  if (filtersSheet && filtersButton && typeof filtersSheet.showModal === 'function') {
+    filtersButton.addEventListener('click', () => filtersSheet.showModal());
+    filtersSheet.querySelector('[data-close]')?.addEventListener('click', () => filtersSheet.close());
+    filtersSheet.addEventListener('click', (event) => { if (event.target === filtersSheet) filtersSheet.close(); });
+  }
+
   /* ---- Shelves: arrow buttons that page through the row ---------------- */
   document.querySelectorAll('[data-shelf]').forEach((shelf) => {
     const track = shelf.querySelector('[data-shelf-track]');

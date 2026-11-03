@@ -90,9 +90,25 @@
 .toolbar__row .segmented { flex-shrink: 0; }
 .toolbar__sort { margin-left: auto; }
 
+.filter-button { display: none; flex-shrink: 0; height: 44px; padding: 0 var(--s-4); }
+.filter-button .icon { width: 18px; height: 18px; }
+.badge {
+  min-width: 20px; height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+}
+
 @media (max-width: 719px) {
   .toolbar { position: static; }
-  .toolbar__row .field { max-width: none; flex-basis: 100%; }
+  .toolbar__row .field { max-width: none; flex: 1 1 0; min-width: 0; }
+  /* With JavaScript, phones get a compact bar and the filters move into a sheet. */
+  .js .filter-button { display: inline-flex; }
+  .js .toolbar__types, .js .toolbar__sort, .js .toolbar__genres { display: none; }
   .toolbar__row .segmented { overflow-x: auto; max-width: 100%; scrollbar-width: none; }
   .toolbar__sort { margin-left: 0; }
   .toolbar .chips { margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
