@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${manga.title}, ${manga.description})}"></head>
+<body th:data-icons="@{/img/icons.svg}" th:with="rating=${#numbers.formatDecimal(manga.rating, 1, 1, 'POINT')}">
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main>
+    <section class="title-hero">
+        <div class="backdrop" aria-hidden="true"><img th:src="@{${manga.imageUrl}}" alt=""></div>
+        <div class="container title-hero__inner">
+            <div class="cover title-hero__cover">
+                <img th:src="@{${manga.imageUrl}}" th:alt="|Обложка: ${manga.title}|" width="375" height="562" fetchpriority="high">
+            </div>
+            <div class="title-hero__info">
+                <p class="t-eyebrow" th:text="|${manga.type.label} · ${manga.genre}|">Манхва · Фэнтези</p>
+                <h1 class="t-display" th:text="${manga.title}">Title</h1>
+                <p class="title-hero__author" th:text="${manga.author}">Author</p>
+                <div class="title-hero__actions">
+                    <a class="btn btn--filled" aria-disabled="true" role="link">
+                        <svg th:replace="~{fragments/layout :: icon('book')}"></svg>Читать
+                    </a>
+                    <button class="btn btn--tinted" type="button" data-share th:data-share-title="${manga.title}">
+                        <svg th:replace="~{fragments/layout :: icon('share')}"></svg>Поделиться
+                    </button>
+                </div>
+                <p class="title-hero__note">Читалка появится на следующем этапе.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="container title-body">
+        <div class="facts" role="list">
+            <div class="fact" role="listitem">
+                <span class="fact__label">Рейтинг</span>
+                <span class="fact__value" th:text="${rating}">4.9</span>
+                <span class="stars" th:aria-label="|${rating} из 5|">
+                    <svg th:each="i : ${#numbers.sequence(1, 5)}" class="icon"
+                         th:classappend="${i - 0.5 <= manga.rating.doubleValue()} ? 'is-on'" aria-hidden="true">
+                        <use th:href="@{/img/icons.svg} + '#star'"></use>
+                    </svg>
+                </span>
+            </div>
+            <div class="fact" role="listitem">
+                <span class="fact__label">Формат</span>
+                <span class="fact__value" th:text="${manga.type.label}">Манхва</span>
+                <span class="fact__sub" th:text="${manga.type.name() == 'MANGA'} ? 'справа налево' : 'вертикальная лента'">лента</span>
+            </div>
+            <div class="fact" role="listitem">
+                <span class="fact__label">Жанр</span>
+                <span class="fact__value" th:text="${manga.genre}">Фэнтези</span>
+                <a class="fact__sub" th:href="@{/catalog(genre=${manga.genre})}">ещё в жанре</a>
+            </div>
+            <div class="fact" role="listitem">
+                <span class="fact__label">Главы</span>
+                <span class="fact__value">—</span>
+                <span class="fact__sub">скоро</span>
+            </div>
+        </div>
+
+        <section class="section" aria-labelledby="about">
+            <h2 class="t-title" id="about">Описание</h2>
+            <p class="prose is-clamped" data-clamp th:text="${manga.description}">Description</p>
+            <button class="btn btn--plain" type="button" data-clamp-toggle aria-expanded="false" hidden>Ещё</button>
+        </section>
+
+        <section class="section" aria-labelledby="chapters">
+            <h2 class="t-title" id="chapters">Главы</h2>
+            <div class="empty">
+                <div class="empty__icon"><svg th:replace="~{fragments/layout :: icon('book')}"></svg></div>
+                <p class="empty__title">Главы пока не загружены</p>
+                <p>Как только появится читалка, главы будут здесь — с отметкой прочитанных.</p>
+            </div>
+        </section>
+    </div>
+
+    <th:block th:unless="${similar.isEmpty()}">
+        <section th:replace="~{fragments/layout :: shelf('Похожие', ${similar}, @{/catalog(genre=${manga.genre})})}"></section>
+    </th:block>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<nav th:replace="~{fragments/layout :: tabbar}"></nav>
+<dialog th:replace="~{fragments/layout :: spotlight}"></dialog>
+</body>
+</html>

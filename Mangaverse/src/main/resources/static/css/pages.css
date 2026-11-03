@@ -1,0 +1,180 @@
+/* ==========================================================================
+   Pages
+   ========================================================================== */
+
+/* --- Shared: blurred cover backdrop ------------------------------------ */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.backdrop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(56px) saturate(1.5);
+  transform: scale(1.3);
+  opacity: 0.55;
+}
+.backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, var(--bg-elevated) 100%);
+}
+
+/* --- Home: featured hero ----------------------------------------------- */
+.hero {
+  position: relative;
+  margin-top: var(--s-6);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: var(--bg-elevated);
+  isolation: isolate;
+}
+.hero .backdrop::after {
+  background: linear-gradient(90deg, var(--bg-elevated) 20%, transparent 100%),
+              linear-gradient(0deg, var(--bg-elevated) 0%, transparent 60%);
+}
+.hero__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--s-10);
+  padding: var(--s-10);
+}
+.hero__cover {
+  width: clamp(150px, 18vw, 220px);
+  box-shadow: var(--shadow-card);
+}
+.hero__text { display: grid; gap: var(--s-3); max-width: 60ch; }
+.hero__desc {
+  color: var(--label-2);
+  font-size: 17px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hero .meta { margin-top: 0; font-size: var(--fs-callout); }
+.hero__actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-3); }
+
+@media (max-width: 719px) {
+  .hero { border-radius: var(--r-lg); margin-top: var(--s-4); }
+  .hero .backdrop::after { background: linear-gradient(0deg, var(--bg-elevated) 35%, transparent 100%); }
+  .hero__inner { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: var(--s-5); padding: var(--s-8) var(--s-5) var(--s-6); }
+  .hero__cover { width: 148px; }
+  .hero .meta, .hero__actions { justify-content: center; }
+  .hero__actions .btn { flex: 1; }
+}
+
+/* --- Page header -------------------------------------------------------- */
+.page-head { padding-top: var(--s-8); display: grid; gap: var(--s-2); }
+.page-head .t-caption { font-size: var(--fs-callout); }
+
+/* --- Catalog ----------------------------------------------------------- */
+.toolbar {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 10;
+  display: grid;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+  padding-block: var(--s-3);
+  background: var(--bg);
+}
+.toolbar__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
+.toolbar__row .field { flex: 1 1 260px; max-width: 420px; }
+.toolbar__row .segmented { flex-shrink: 0; }
+.toolbar__sort { margin-left: auto; }
+
+@media (max-width: 719px) {
+  .toolbar { position: static; }
+  .toolbar__row .field { max-width: none; flex-basis: 100%; }
+  .toolbar__row .segmented { overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+  .toolbar__sort { margin-left: 0; }
+  .toolbar .chips { margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+}
+
+.results { margin-top: var(--s-6); }
+.results__summary { margin-bottom: var(--s-5); font-size: var(--fs-callout); color: var(--label-2); }
+.results__summary a { color: var(--accent-text); }
+
+/* --- Title page -------------------------------------------------------- */
+.title-hero { position: relative; isolation: isolate; }
+/* Positioned so it paints above the hero backdrop that bleeds below the hero. */
+.title-body { position: relative; }
+.title-hero .backdrop { height: 520px; }
+.title-hero .backdrop::after { background: linear-gradient(180deg, transparent 0%, var(--bg) 92%); }
+
+.title-hero__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(180px, 22vw, 260px) 1fr;
+  gap: var(--s-10);
+  align-items: end;
+  padding-top: var(--s-12);
+}
+.title-hero__cover { box-shadow: var(--shadow-card); border-radius: var(--r-lg); }
+.title-hero__info { display: grid; gap: var(--s-3); padding-bottom: var(--s-2); }
+.title-hero__author { font-size: 17px; color: var(--label-2); }
+.title-hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin-top: var(--s-3); }
+.title-hero__note { font-size: var(--fs-caption); color: var(--label-2); }
+
+/* App Store-style info strip */
+.facts {
+  display: flex;
+  margin-top: var(--s-10);
+  padding-block: var(--s-4);
+  border-block: 1px solid var(--separator);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.fact {
+  flex: 1 0 120px;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding-inline: var(--s-4);
+  text-align: center;
+}
+.fact + .fact { border-left: 1px solid var(--separator); }
+.fact__label { font-size: var(--fs-micro); font-weight: 600; letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--label-2); }
+.fact__value { font: 700 20px/1.3 var(--font-display); color: var(--label); }
+.fact__sub { font-size: var(--fs-caption); color: var(--label-2); }
+a.fact__sub:hover { color: var(--accent-text); }
+.fact .stars { display: flex; gap: 1px; color: var(--label-3); }
+.fact .stars .icon { width: 11px; height: 11px; }
+.fact .stars .is-on { color: var(--accent); }
+
+.prose { max-width: 68ch; margin-top: var(--s-4); font-size: 17px; line-height: 1.6; }
+.prose.is-clamped { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.prose + .btn--plain { margin-top: var(--s-2); }
+
+@media (max-width: 719px) {
+  .title-hero .backdrop { height: 420px; }
+  .title-hero__inner { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: var(--s-6); padding-top: var(--s-8); }
+  .title-hero__cover { width: 168px; }
+  .title-hero__actions { justify-content: center; }
+  .title-hero__info .meta { justify-content: center; }
+  .facts { margin-top: var(--s-8); }
+}
+
+/* --- Error pages ------------------------------------------------------- */
+.error-page {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: var(--s-3);
+  min-height: 60dvh;
+  text-align: center;
+}
+.error-page__code {
+  font: 200 clamp(88px, 16vw, 160px) / 1 var(--font-display);
+  letter-spacing: -0.05em;
+  color: var(--label-3);
+}
+.error-page p { color: var(--label-2); max-width: 40ch; }
+.error-page .btn { margin-top: var(--s-4); }

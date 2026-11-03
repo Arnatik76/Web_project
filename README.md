@@ -1,211 +1,116 @@
-# Mangaverse Backend
+# MangaVerse
 
-Mangaverse is a Spring Boot application for managing a collection of manga. It provides RESTful APIs for adding, updating, deleting, and retrieving manga information.
+Минималистичный каталог и читалка манги и манхвы. Spring Boot + PostgreSQL, страницы рендерятся на сервере (Thymeleaf), без фронтенд-фреймворков.
 
----
+## Быстрый старт
 
-## Features
+Нужны **Java 21+**, **Maven 3.9+** и **PostgreSQL 16** (или Docker).
 
-- **Add New Manga**: Add new manga entries to the database.
-- **Update Manga**: Edit existing manga details.
-- **Delete Manga**: Remove manga entries.
-- **Retrieve Manga by ID**: Get detailed information about specific manga.
-- **Search Manga**: Search for manga by title, author, genre, or description.
-- **Popular Manga**: Fetch manga based on their ratings.
-- **Manga by Genre**: Retrieve manga grouped by genres.
+```bash
+cd Mangaverse
+docker compose up -d db          # PostgreSQL на localhost:5432, база mangaverse
+DB_PASSWORD=postgres mvn spring-boot:run
+```
 
----
+Откройте <http://localhost:8080>. Схема и стартовые данные создаются автоматически миграциями Flyway (`src/main/resources/db/migration`).
 
-## Technologies Used
+> Старая таблица `manga`, созданная прежним `schema.sql`, с миграциями несовместима. Используйте новую пустую базу `mangaverse`.
 
-- **Java**
-- **Spring Boot**
-- **Spring Data JDBC**
-- **PostgreSQL**
-- **Maven**
+### Настройки
 
----
+Все секреты передаются через переменные окружения, в репозитории их нет. Пример — в [`Mangaverse/.env.example`](Mangaverse/.env.example).
 
-## Getting Started
+| Переменная | По умолчанию | Назначение |
+|---|---|---|
+| `DB_URL` | `jdbc:postgresql://localhost:5432/mangaverse` | Адрес базы |
+| `DB_USERNAME` | `postgres` | Пользователь базы |
+| `DB_PASSWORD` | пусто | Пароль базы |
+| `MANGAVERSE_ADMIN_TOKEN` | пусто | Токен для записи через API. Пусто — запись выключена |
 
-### Prerequisites
+## Страницы
 
-Ensure you have the following installed on your system:
+| URL | Что это |
+|---|---|
+| `/` | Главная: выбор недели, полки «Популярное», «Манхва», жанры |
+| `/catalog?q=&genre=&type=manga\|manhwa\|manhua&sort=popular\|new\|title` | Каталог с фильтрами. Фильтры хранятся в URL, ссылкой можно поделиться |
+| `/title/{id}` | Страница тайтла |
 
-- **Java**: Version 17 or higher
-- **Maven**: Version 3.6.0 or higher
-- **PostgreSQL**
+Поиск по всему сайту: `⌘K` / `Ctrl K` или `/`.
 
-### Installation
+## API
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Arnatik76/mangaverse.git
-   cd mangaverse
-   ```
+Все ответы — JSON. Ошибки — в формате [RFC 7807](https://www.rfc-editor.org/rfc/rfc7807) (`application/problem+json`).
 
-2. Set up the PostgreSQL database:
-   ```sql
-   CREATE DATABASE mangaverse;
-   ```
+| Метод | URL | Описание |
+|---|---|---|
+| GET | `/api/manga/all` | Все тайтлы (по рейтингу) |
+| GET | `/api/manga/popular` | То же, по убыванию рейтинга |
+| GET | `/api/manga/{id}` | Один тайтл, `404` если не найден |
+| GET | `/api/manga/genre?genre=Боевик` | Тайтлы жанра |
+| GET | `/api/manga/genres` | Список жанров, самые частые первыми |
+| GET | `/api/manga/search?q=solo` | Поиск по названию, автору и жанру без учёта регистра (`query=` тоже работает) |
+| POST | `/api/manga/new` | Добавить тайтл. Требует заголовок `X-Admin-Token` |
 
-3. Update the `application.properties` file with your PostgreSQL credentials:
-   ```properties
-   spring.datasource.url=jdbc:postgresql://localhost:5432/mangaverse
-   spring.datasource.username=your_username
-   spring.datasource.password=your_password
-   ```
+Пример добавления:
 
-4. Run the application:
-   ```bash
-   mvn spring-boot:run
-   ```
+```bash
+curl -X POST localhost:8080/api/manga/new \
+  -H "X-Admin-Token: $MANGAVERSE_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Berserk","author":"Kentaro Miura","genre":"Драма","type":"MANGA",
+       "description":"…","rating":4.9,"imageUrl":"/images/berserk.jpg"}'
+```
 
----
+`type` — `MANGA`, `MANHWA` или `MANHUA`; `rating` — от 0 до 5; `imageUrl` — путь от корня сайта (`/images/…`) или `https://` URL.
 
-## API Endpoints
+## Структура
 
-### Add New Manga
+```
+Mangaverse/src/main/
+├── java/org/example/mangaverse/
+│   ├── controllers/   PageController (HTML), MangaApiController (JSON)
+│   ├── services/      бизнес-логика, сортировки каталога
+│   ├── repositories/  Spring Data JDBC
+│   ├── models/        Manga, MangaType
+│   ├── web/           CatalogFilter — построение ссылок фильтров
+│   └── config/        WebConfig, проверка админ-токена
+└── resources/
+    ├── db/migration/  миграции Flyway
+    ├── templates/     Thymeleaf: layout-фрагменты, страницы, ошибки
+    └── static/
+        ├── css/       tokens → base → components → pages
+        ├── js/app.js  тема, полки, поиск ⌘K, «поделиться»
+        ├── img/       иконки (SVG-спрайт), favicon
+        └── images/    обложки
+```
 
-- **URL**: `/api/manga/new`
-- **Method**: `POST`
-- **Request Body**:
-  ```json
-  {
-    "title": "One Piece",
-    "author": "Eiichiro Oda",
-    "genre": "Shonen",
-    "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-    "rating": 4.5,
-    "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "id": 1,
-    "title": "One Piece",
-    "author": "Eiichiro Oda",
-    "genre": "Shonen",
-    "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-    "rating": 4.5,
-    "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-  }
-  ```
+## Дизайн-система
 
-### Update Manga
+Все цвета, размеры, скругления и тайминги анимаций — токены в [`static/css/tokens.css`](Mangaverse/src/main/resources/static/css/tokens.css). В CSS нет «магических» чисел: только `var(--…)`.
 
-- **URL**: `/api/manga/update`
-- **Method**: `POST`
-- **Request Body**:
-  ```json
-  {
-    "id": 1,
-    "title": "One Piece",
-    "author": "Eiichiro Oda",
-    "genre": "Shonen",
-    "description": "Updated description",
-    "rating": 4.6,
-    "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "id": 1,
-    "title": "One Piece",
-    "author": "Eiichiro Oda",
-    "genre": "Shonen",
-    "description": "Updated description",
-    "rating": 4.6,
-    "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-  }
-  ```
+- Тёмная тема по умолчанию, светлая — по системной настройке или переключателю в шапке.
+- Один акцентный цвет; контраст текста не ниже WCAG AA.
+- Обложки всегда 2:3, сетка 4 pt, цели касания не меньше 44 px.
+- На мобильных — нижний таб-бар, полки листаются свайпом со snap.
+- Анимации только `transform`/`opacity`, `prefers-reduced-motion` учитывается.
 
-### Delete Manga
+## Тесты
 
-- **URL**: `/api/manga/delete/{mangaId}`
-- **Method**: `DELETE`
-- **Response**: `204 No Content`
+```bash
+cd Mangaverse && mvn test
+```
 
-### Get Manga by ID
+Тесты контроллеров и сервисов работают без базы данных.
 
-- **URL**: `/api/manga/{id}`
-- **Method**: `GET`
-- **Response**:
-  ```json
-  {
-    "id": 1,
-    "title": "One Piece",
-    "author": "Eiichiro Oda",
-    "genre": "Shonen",
-    "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-    "rating": 4.5,
-    "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-  }
-  ```
+## Дорожная карта
 
-### Search Manga
+- [x] **Фаза 0** — безопасность и гигиена: секреты в env, XSS, валидация, миграции, чистка репозитория
+- [x] **Фаза 1** — дизайн-система и новый интерфейс: главная, каталог, страница тайтла, поиск ⌘K
+- [ ] **Фаза 2** — модель данных: главы, страницы, жанры M:N, slug, пагинация
+- [ ] **Фаза 3** — читалка: вертикальная лента для манхвы, постраничный режим для манги, прогресс чтения
+- [ ] **Фаза 4** — оптимизация изображений (WebP/AVIF, srcset), Lighthouse ≥ 95
+- [ ] **Фаза 5** — аккаунты, библиотека, синхронизация прогресса
 
-- **URL**: `/api/manga/search`
-- **Method**: `GET`
-- **Query Parameters**: `query`
-- **Response**:
-  ```json
-  [
-    {
-      "id": 1,
-      "title": "One Piece",
-      "author": "Eiichiro Oda",
-      "genre": "Shonen",
-      "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-      "rating": 4.5,
-      "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-    }
-  ]
-  ```
+## Авторы
 
-### Get Popular Manga
-
-- **URL**: `/api/manga/popular`
-- **Method**: `GET`
-- **Response**:
-  ```json
-  [
-    {
-      "id": 1,
-      "title": "One Piece",
-      "author": "Eiichiro Oda",
-      "genre": "Shonen",
-      "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-      "rating": 4.5,
-      "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-    }
-  ]
-  ```
-
-### Get Manga by Genre
-
-- **URL**: `/api/manga/genre/{genre}`
-- **Method**: `GET`
-- **Response**:
-  ```json
-  [
-    {
-      "id": 1,
-      "title": "One Piece",
-      "author": "Eiichiro Oda",
-      "genre": "Shonen",
-      "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-      "rating": 4.5,
-      "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-    }
-  ]
-  ```
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
+Jalgas Arnat, Almassov Aidyn. Лицензия MIT.

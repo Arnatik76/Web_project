@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Каталог', 'Каталог манги и манхвы: фильтры по жанру и формату, поиск.')}"></head>
+<body th:data-icons="@{/img/icons.svg}">
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <div class="page-head">
+        <h1 class="t-large">Каталог</h1>
+        <p class="t-caption" th:text="${resultsLabel}">20 тайтлов</p>
+    </div>
+
+    <div class="toolbar">
+        <div class="toolbar__row">
+            <form class="field" method="get" th:action="@{/catalog}" role="search">
+                <svg th:replace="~{fragments/layout :: icon('search')}"></svg>
+                <label class="visually-hidden" for="catalog-q">Поиск по каталогу</label>
+                <input class="field__input" id="catalog-q" type="search" name="q" th:value="${filter.q}"
+                       placeholder="Название, автор или жанр" autocomplete="off">
+                <input type="hidden" name="genre" th:if="${filter.genre != null}" th:value="${filter.genre}">
+                <input type="hidden" name="type" th:if="${filter.type != null}" th:value="${#strings.toLowerCase(filter.type.name())}">
+                <input type="hidden" name="sort" th:if="${filter.sort.name() != 'POPULAR'}" th:value="${#strings.toLowerCase(filter.sort.name())}">
+            </form>
+
+            <nav class="segmented" aria-label="Формат">
+                <a class="segmented__item" th:href="${filter.withType(null).url}"
+                   th:attr="aria-current=${filter.type == null ? 'true' : null}">Все</a>
+                <a class="segmented__item" th:each="t : ${types}" th:href="${filter.withType(t).url}"
+                   th:attr="aria-current=${filter.type == t ? 'true' : null}" th:text="${t.label}">Манга</a>
+            </nav>
+
+            <nav class="segmented toolbar__sort" aria-label="Сортировка">
+                <a class="segmented__item" th:each="s : ${sorts}" th:href="${filter.withSort(s).url}"
+                   th:attr="aria-current=${filter.sort == s ? 'true' : null}" th:text="${s.label}">Популярные</a>
+            </nav>
+        </div>
+
+        <nav class="chips" aria-label="Жанры">
+            <a class="chip" th:href="${filter.withGenre(null).url}"
+               th:attr="aria-current=${filter.genre == null ? 'true' : null}">Все жанры</a>
+            <a class="chip" th:each="g : ${genres}" th:href="${filter.withGenre(g).url}"
+               th:attr="aria-current=${filter.genre == g ? 'true' : null}" th:text="${g}">Жанр</a>
+        </nav>
+    </div>
+
+    <section class="results" aria-label="Результаты">
+        <p class="results__summary" th:if="${filter.q != null}">
+            Результаты по запросу «<span th:text="${filter.q}">запрос</span>» ·
+            <a th:href="${filter.withoutQuery().url}">сбросить</a>
+        </p>
+
+        <div class="grid" th:unless="${results.isEmpty()}">
+            <th:block th:each="m : ${results}"><a th:replace="~{fragments/layout :: card(${m})}"></a></th:block>
+        </div>
+
+        <div class="empty" th:if="${results.isEmpty()}">
+            <div class="empty__icon"><svg th:replace="~{fragments/layout :: icon('search')}"></svg></div>
+            <p class="empty__title">Ничего не нашлось</p>
+            <p>Попробуйте другой запрос или уберите часть фильтров.</p>
+            <a class="btn btn--tinted" th:href="@{/catalog}">Сбросить фильтры</a>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<nav th:replace="~{fragments/layout :: tabbar}"></nav>
+<dialog th:replace="~{fragments/layout :: spotlight}"></dialog>
+</body>
+</html>
