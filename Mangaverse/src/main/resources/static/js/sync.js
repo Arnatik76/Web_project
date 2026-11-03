@@ -123,6 +123,8 @@ window.MV = (() => {
       localStorage.removeItem(PROGRESS_KEY);
       sessionStorage.removeItem(SYNCED_KEY);
     } catch { /* ignore */ }
+    // Cached pages may show the account's name; saved chapter images are fine to keep.
+    if ('caches' in window) caches.keys().then((keys) => keys.filter((k) => k.startsWith('mv-pages')).forEach((k) => caches.delete(k)));
   }
 
   // Sync once per browser session, right after signing in, and when coming back online.
@@ -137,6 +139,11 @@ window.MV = (() => {
   document.addEventListener('submit', (event) => {
     if (event.target instanceof HTMLFormElement && event.target.matches('[data-logout]')) forget();
   });
+
+  // Offline support (see /sw.js). Registered after load so it never competes with the first paint.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+  }
 
   return { signedIn, library, progress, sync };
 })();

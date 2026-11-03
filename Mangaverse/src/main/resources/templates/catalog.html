@@ -49,7 +49,8 @@
         </nav>
     </div>
 
-    <section class="results" aria-label="Результаты">
+    <section class="results" aria-labelledby="results-title">
+        <h2 class="visually-hidden" id="results-title">Результаты</h2>
         <p class="results__summary" th:if="${filter.q != null}">
             Результаты по запросу «<span th:text="${filter.q}">запрос</span>» ·
             <a th:href="${filter.withoutQuery().url}">сбросить</a>

@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title th:text="|${c.label()} · ${m.title} — MangaVerse|">Глава 1 · Title — MangaVerse</title>
     <meta name="theme-color" content="#000000">
+    <meta name="description" th:content="|${m.title}, ${c.label()} — читать на MangaVerse|">
+    <!-- Chapter pages are not indexed: the title page is the canonical landing page. -->
     <meta name="robots" content="noindex">
+    <link rel="canonical" th:href="@{/title/{s}(s=${m.slug})}">
     <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
     <link rel="apple-touch-icon" th:href="@{/img/apple-touch-icon.png}">
     <link rel="manifest" th:href="@{/manifest.webmanifest}">
@@ -14,9 +17,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="MangaVerse">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200..800&display=swap">
     <link rel="stylesheet" th:href="@{/css/tokens.css}">
     <link rel="stylesheet" th:href="@{/css/base.css}">
     <link rel="stylesheet" th:href="@{/css/components.css}">
@@ -177,6 +177,12 @@
                     <button class="segmented__item" type="button" data-setting="bg" data-value="gray">Серый</button>
                     <button class="segmented__item" type="button" data-setting="bg" data-value="white">Белый</button>
                 </div>
+            </div>
+            <div class="sheet__row" data-offline-row hidden>
+                <span class="sheet__label">Офлайн</span>
+                <button class="btn btn--tinted btn--small" type="button" data-offline-save>
+                    <svg th:replace="~{fragments/layout :: icon('cloud')}"></svg><span data-offline-label>Сохранить главу</span>
+                </button>
             </div>
             <p class="sheet__hint">
                 <kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd> листать ·

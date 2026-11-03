@@ -177,7 +177,6 @@
     });
     document.querySelectorAll('[data-shelf-tab]').forEach((tab) => {
       tab.setAttribute('aria-selected', String(tab.dataset.shelfTab === activeShelf));
-      tab.setAttribute('aria-pressed', String(tab.dataset.shelfTab === activeShelf));
     });
 
     const progressBySlug = Object.fromEntries(history.map((e) => [e.slug, e]));

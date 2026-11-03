@@ -201,7 +201,7 @@ html:has(.reader) { scroll-padding-top: 0; }
 .reader-end__note { color: var(--label-2); max-width: 36ch; }
 .reader[data-bg="white"] .reader-end {
   --label: rgba(0, 0, 0, 0.88);
-  --label-2: #6E6E73;
+  --label-2: #5E5E63;
   --fill: rgba(0, 0, 0, 0.06);
   --fill-strong: rgba(0, 0, 0, 0.1);
   --accent-text: #A8431A;

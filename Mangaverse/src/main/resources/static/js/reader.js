@@ -290,6 +290,41 @@
   document.addEventListener('visibilitychange', () => { if (!wakeLock || wakeLock.released) keepAwake(); });
   keepAwake();
 
+  /* ---- Save chapter for offline reading ------------------------------- */
+  // Same caches the service worker reads from: images in mv-media, the page itself in mv-pages-*.
+  const offlineRow = root.querySelector('[data-offline-row]');
+  const offlineButton = root.querySelector('[data-offline-save]');
+  const offlineLabel = root.querySelector('[data-offline-label]');
+  if (offlineRow && offlineButton && 'caches' in window && 'serviceWorker' in navigator && total) {
+    offlineRow.hidden = false;
+    const imageUrls = pages.map((page) => page.querySelector('img').getAttribute('src'));
+    const pageUrl = location.pathname;
+    const markSaved = () => {
+      offlineLabel.textContent = 'Сохранено';
+      offlineButton.setAttribute('aria-disabled', 'true');
+    };
+    caches.open('mv-media').then(async (cache) => {
+      const cached = await Promise.all(imageUrls.map((url) => cache.match(url)));
+      if (cached.every(Boolean) && (await caches.match(pageUrl, { ignoreSearch: true }))) markSaved();
+    });
+    offlineButton.addEventListener('click', async () => {
+      offlineLabel.textContent = 'Сохраняем…';
+      try {
+        const media = await caches.open('mv-media');
+        let done = 0;
+        await Promise.all(imageUrls.map(async (url) => {
+          if (!(await media.match(url))) await media.add(url);
+          offlineLabel.textContent = `Сохраняем… ${Math.round((++done / imageUrls.length) * 100)}%`;
+        }));
+        const pagesCache = (await caches.keys()).find((key) => key.startsWith('mv-pages')) || 'mv-pages-v1';
+        await (await caches.open(pagesCache)).add(pageUrl);
+        markSaved();
+      } catch {
+        offlineLabel.textContent = 'Не удалось — повторить';
+      }
+    });
+  }
+
   /* ---- Start ----------------------------------------------------------- */
   requestAnimationFrame(restore);
 })();

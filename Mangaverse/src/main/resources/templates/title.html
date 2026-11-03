@@ -49,7 +49,7 @@
             <div class="fact" role="listitem">
                 <span class="fact__label">Рейтинг</span>
                 <span class="fact__value" th:text="${rating}">4.9</span>
-                <span class="stars" th:aria-label="|${rating} из 5|">
+                <span class="stars" role="img" th:aria-label="|${rating} из 5|">
                     <svg th:each="i : ${#numbers.sequence(1, 5)}" class="icon"
                          th:classappend="${i - 0.5 <= manga.rating.doubleValue()} ? 'is-on'" aria-hidden="true">
                         <use th:href="@{/img/icons.svg} + '#star'"></use>

@@ -257,8 +257,11 @@ a.fact__sub:hover { color: var(--accent-text); }
 
 .library-tabs { margin-top: var(--s-6); overflow-x: auto; scrollbar-width: none; }
 .library-tabs .segmented { min-width: max-content; }
-.segmented__count { margin-left: 4px; color: var(--label-3); font-variant-numeric: tabular-nums; }
-.library-grid { margin-top: var(--s-6); }
+.segmented__count { margin-left: 4px; color: var(--label-2); font-variant-numeric: tabular-nums; }
+/* Space is reserved before app.js renders the shelf, so the footer does not jump. */
+.library-grid { margin-top: var(--s-6); min-height: 50vh; }
+.library-grid:empty { min-height: 0; }
+.library-grid:empty + .empty[hidden] { display: block !important; visibility: hidden; min-height: 50vh; }
 
 /* --- Admin -------------------------------------------------------------- */
 .dropzone {
