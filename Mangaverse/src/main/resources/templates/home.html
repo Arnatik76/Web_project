@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(null, null)}"></head>
+<body th:data-icons="@{/img/icons.svg}">
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main>
+    <h1 class="visually-hidden">MangaVerse — манга и манхва</h1>
+
+    <!-- First thing a returning reader sees. Filled by app.js from this device's progress; hidden when empty. -->
+    <section class="section shelf" data-shelf data-continue hidden>
+        <div class="container">
+            <div class="shelf__head">
+                <h2 class="t-title">Продолжить чтение</h2>
+                <div class="shelf__arrows">
+                    <button class="icon-btn" type="button" data-shelf-prev aria-label="Прокрутить назад" disabled>
+                        <svg th:replace="~{fragments/layout :: icon('chevron-left')}"></svg>
+                    </button>
+                    <button class="icon-btn" type="button" data-shelf-next aria-label="Прокрутить вперёд">
+                        <svg th:replace="~{fragments/layout :: icon('chevron-right')}"></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="shelf__track shelf__track--wide" data-shelf-track data-continue-track></div>
+        </div>
+    </section>
+
+    <section class="container" th:if="${featured != null}" th:with="m=${featured}">
+        <article class="hero">
+            <div class="backdrop" aria-hidden="true"><img th:src="@{${@covers.thumbnail(m.imageUrl)}}" alt=""></div>
+            <div class="hero__inner">
+                <a class="cover hero__cover" th:href="@{/title/{slug}(slug=${m.slug})}" tabindex="-1" aria-hidden="true">
+                    <picture th:replace="~{fragments/layout :: coverImage(${m.imageUrl}, '(min-width: 720px) 220px, 148px', '', true)}"></picture>
+                </a>
+                <div class="hero__text">
+                    <p class="t-eyebrow">Выбор недели</p>
+                    <h2 class="t-display" th:text="${m.title}">Title</h2>
+                    <p class="meta">
+                        <span th:text="${m.type.label}">Манхва</span>
+                        <span th:text="${m.genre}">Фэнтези</span>
+                        <span class="rating">
+                            <svg th:replace="~{fragments/layout :: icon('star')}"></svg>
+                            <span th:text="${#numbers.formatDecimal(m.rating, 1, 1, 'POINT')}">4.9</span>
+                        </span>
+                    </p>
+                    <p class="hero__desc" th:text="${m.description}">Description</p>
+                    <div class="hero__actions">
+                        <a class="btn btn--filled" th:href="@{/title/{slug}(slug=${m.slug})}">
+                            <svg th:replace="~{fragments/layout :: icon('book')}"></svg>Подробнее
+                        </a>
+                        <a class="btn btn--tinted" th:href="@{/catalog}">Весь каталог</a>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <section th:replace="~{fragments/layout :: shelf('Популярное', ${popular}, @{/catalog})}"></section>
+
+    <th:block th:if="${!manhwa.isEmpty()}">
+        <section th:replace="~{fragments/layout :: shelf('Манхва', ${manhwa}, @{/catalog(type='manhwa')})}"></section>
+    </th:block>
+
+    <th:block th:each="entry : ${genreShelves}">
+        <section th:replace="~{fragments/layout :: shelf(${entry.key}, ${entry.value}, @{/catalog(genre=${entry.key})})}"></section>
+    </th:block>
+
+    <section class="section">
+        <div class="container">
+            <div class="shelf__head"><h2 class="t-title">Жанры</h2></div>
+            <div class="chips chips--wrap">
+                <a class="chip" th:each="g : ${genres}" th:href="@{/catalog(genre=${g})}" th:text="${g}">Жанр</a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<nav th:replace="~{fragments/layout :: tabbar}"></nav>
+<dialog th:replace="~{fragments/layout :: spotlight}"></dialog>
+</body>
+</html>

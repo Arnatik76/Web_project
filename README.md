@@ -1,211 +1,132 @@
-# Mangaverse Backend
+# MangaVerse
 
-Mangaverse is a Spring Boot application for managing a collection of manga. It provides RESTful APIs for adding, updating, deleting, and retrieving manga information.
+Минималистичная читалка манги и манхвы, сделанная в первую очередь для телефона. Spring Boot + PostgreSQL, страницы рендерятся на сервере (Thymeleaf), JavaScript без фреймворков и только поверх готового HTML. Без JS сайт тоже работает.
 
----
+**Lighthouse (мобильный профиль):** главная, каталог, страница тайтла и библиотека — 99–100 по всем четырём категориям, CLS 0.
 
-## Features
+## Быстрый старт
 
-- **Add New Manga**: Add new manga entries to the database.
-- **Update Manga**: Edit existing manga details.
-- **Delete Manga**: Remove manga entries.
-- **Retrieve Manga by ID**: Get detailed information about specific manga.
-- **Search Manga**: Search for manga by title, author, genre, or description.
-- **Popular Manga**: Fetch manga based on their ratings.
-- **Manga by Genre**: Retrieve manga grouped by genres.
+Нужны **Java 21+**, **Maven 3.9+** и **PostgreSQL 16** (или Docker).
 
----
+```bash
+cd Mangaverse
+docker compose up -d db
+DB_PASSWORD=postgres MANGAVERSE_ADMIN_EMAIL=you@example.com mvn spring-boot:run
+```
 
-## Technologies Used
+Откройте <http://localhost:8080> и зарегистрируйтесь с адресом из `MANGAVERSE_ADMIN_EMAIL`: этот аккаунт станет администратором и сможет загружать главы. Схему и демо-данные создают миграции Flyway.
 
-- **Java**
-- **Spring Boot**
-- **Spring Data JDBC**
-- **PostgreSQL**
-- **Maven**
+### Переменные окружения
 
----
+Секретов в репозитории нет, пример — в [`Mangaverse/.env.example`](Mangaverse/.env.example).
 
-## Getting Started
+| Переменная | По умолчанию | Назначение |
+|---|---|---|
+| `DB_URL` | `jdbc:postgresql://localhost:5432/mangaverse` | Адрес базы |
+| `DB_USERNAME` / `DB_PASSWORD` | `postgres` / пусто | Доступ к базе |
+| `MANGAVERSE_ADMIN_EMAIL` | пусто | Аккаунт с этим email при регистрации получает роль ADMIN |
+| `REMEMBER_ME_KEY` | случайный при старте | Ключ cookie «Запомнить меня»; задайте его, чтобы вход переживал перезапуск |
+| `MEDIA_DIR` | `media` | Куда сохраняются загруженные страницы глав |
+| `MANGAVERSE_ADMIN_TOKEN` | пусто | Токен для скриптов: `POST /api/manga/new` с заголовком `X-Admin-Token` |
+| `FLYWAY_LOCATIONS` | `classpath:db/migration,classpath:db/demo` | Уберите `db/demo` в продакшене, чтобы не было демо-глав |
 
-### Prerequisites
+> Если у вас осталась таблица `manga` от старого `schema.sql`, используйте новую пустую базу `mangaverse`.
 
-Ensure you have the following installed on your system:
+## Возможности
 
-- **Java**: Version 17 or higher
-- **Maven**: Version 3.6.0 or higher
-- **PostgreSQL**
+### Читалка — `/read/{slug}/{глава}`
+- **Лента** для манхвы и маньхуа: вертикальная прокрутка, ширина 640 / 800 px или во весь экран.
+- **Постраничный режим** для манги: справа налево или слева направо, масштаб по высоте или по ширине.
+- Нажатие на левую или правую треть экрана листает, нажатие по центру показывает и прячет панели. Работают свайпы и клавиши `←` `→` `Space` `[` `]` `F`.
+- Панели исчезают во время чтения. Вёрстка не прыгает: размеры страниц хранятся в базе.
+- Следующие страницы и следующая глава подгружаются заранее. Экран не гаснет во время чтения (Wake Lock).
+- **«Сохранить главу офлайн»** в настройках: глава открывается без сети.
 
-### Installation
+### Библиотека и прогресс
+- Полки «Читаю», «В планах», «Прочитано», «Отложено», «Брошено» и вкладка «История».
+- **Offline-first:** всё хранится на устройстве и работает без аккаунта. Открытый тайтл сам попадает в «Читаю», после последней главы переходит в «Прочитано».
+- **С аккаунтом** изменения синхронизируются между устройствами. Для каждого тайтла побеждает более свежая запись. Удаление тоже синхронизируется (через «надгробия»). Неверные часы на устройстве сервер корректирует. При выходе данные с устройства стираются.
+- На главной — полка «Продолжить чтение», на странице тайтла — кнопка «Продолжить · гл. N» и отметки прочитанных глав.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Arnatik76/mangaverse.git
-   cd mangaverse
-   ```
+### Каталог и поиск
+- Фильтры по формату и жанру (у тайтла может быть несколько жанров) и сортировка. Фильтры хранятся в URL.
+- Бесконечная прокрутка поверх обычной ссылки «Показать ещё».
+- Поиск по всему сайту: `⌘K` / `Ctrl K` / `/`.
 
-2. Set up the PostgreSQL database:
-   ```sql
-   CREATE DATABASE mangaverse;
-   ```
+### Мобильный интерфейс
+- Нижний таб-бар. Крупный заголовок страницы при прокрутке «переезжает» в шапку, как в iOS.
+- Bottom sheet закрывается свайпом вниз. Фильтры каталога на телефоне вынесены в отдельную панель.
+- На странице тайтла кнопка «Читать» следует за прокруткой, как кнопка «Загрузить» в App Store.
+- Обложка «перелетает» из карточки на страницу тайтла (View Transitions).
+- Сайт устанавливается как приложение (PWA): иконки, ярлыки, отступы под вырез экрана, офлайн-страница.
+- Учитываются Dynamic Type, «уменьшить движение» и «уменьшить прозрачность». Поля ввода не меньше 16 px, поэтому iOS не зумит страницу при фокусе.
 
-3. Update the `application.properties` file with your PostgreSQL credentials:
-   ```properties
-   spring.datasource.url=jdbc:postgresql://localhost:5432/mangaverse
-   spring.datasource.username=your_username
-   spring.datasource.password=your_password
-   ```
+### Администрирование
+- `/admin/chapters/new` — загрузка главы: JPEG, PNG или WebP до 15 МБ на страницу.
+- Формат определяется по содержимому файла, а не по имени. Страницы сортируются по-человечески: `2.jpg` идёт перед `10.jpg`.
 
-4. Run the application:
-   ```bash
-   mvn spring-boot:run
-   ```
+## Архитектура
 
----
+```
+Mangaverse/
+├── scripts/              optimize_covers.py (AVIF/WebP), make_icons.py (иконки PWA)
+└── src/main/
+    ├── java/org/example/mangaverse/
+    │   ├── controllers/  страницы, читалка, /api/manga, /api/me, /sw.js
+    │   ├── accounts/     пользователи, регистрация, UserDetailsService
+    │   ├── library/      полки и прогресс: синхронизация «побеждает свежая запись» на JdbcClient
+    │   ├── admin/        загрузка глав, определение формата изображений
+    │   ├── services/     каталог, читалка
+    │   ├── models/       Manga, Chapter, ChapterPage, Slugs
+    │   ├── web/          CatalogFilter, Covers (srcset)
+    │   └── config/       Spring Security, ресурсы, токен для скриптов
+    └── resources/
+        ├── db/migration/ V1–V5: тайтлы, slug, главы, жанры, аккаунты
+        ├── db/demo/      демо-главы
+        ├── pwa/sw.js     service worker
+        ├── templates/    Thymeleaf
+        └── static/
+            ├── css/      tokens → base → components → pages (+ reader)
+            ├── js/       sync.js (данные), app.js (интерфейс), sheets.js, reader.js
+            └── images/   обложки + variants/ (AVIF/WebP 192w и 375w)
+```
 
-## API Endpoints
+**Решения, которые стоит знать:**
+- **Безопасность.** Сессии с CSRF. CSRF-токен рендерится только для вошедших пользователей, поэтому анонимный посетитель не получает сессию просто за просмотр. Пароли хранятся в BCrypt. Включены Referrer-Policy и Permissions-Policy. `/admin` доступен только роли ADMIN. Все данные в HTML экранирует Thymeleaf, а в JS они вставляются только через `textContent`.
+- **Кэширование.** У статики хеш в URL и `Cache-Control` на год. `/sw.js` всегда отдаётся с `no-cache`. Обложки и страницы глав service worker берёт из кэша, HTML — сначала из сети.
+- **Шрифты.** Только системные: SF на устройствах Apple, Roboto на Android, Segoe UI на Windows. Сторонних запросов нет.
+- **Дизайн-токены.** Все цвета, размеры и анимации заданы в `tokens.css`, контраст по WCAG AA в обеих темах.
 
-### Add New Manga
+## API
 
-- **URL**: `/api/manga/new`
-- **Method**: `POST`
-- **Request Body**:
-  ```json
-  {
-    "title": "One Piece",
-    "author": "Eiichiro Oda",
-    "genre": "Shonen",
-    "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-    "rating": 4.5,
-    "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "id": 1,
-    "title": "One Piece",
-    "author": "Eiichiro Oda",
-    "genre": "Shonen",
-    "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-    "rating": 4.5,
-    "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-  }
-  ```
+Ошибки отдаются в формате RFC 7807 (`application/problem+json`).
 
-### Update Manga
+| Метод | URL | Описание |
+|---|---|---|
+| GET | `/api/manga/all`, `/popular` | Тайтлы по рейтингу |
+| GET | `/api/manga/{id}`, `/{id}/chapters` | Тайтл и его главы |
+| GET | `/api/manga/genre?genre=`, `/genres` | По жанру; список жанров |
+| GET | `/api/manga/search?q=` | Поиск по названию, автору и жанрам |
+| POST | `/api/manga/new` | Добавить тайтл (ADMIN или `X-Admin-Token`) |
+| GET | `/api/me` | Профиль (нужен вход) |
+| POST | `/api/me/sync` | Слить данные устройства с аккаунтом и вернуть общее состояние |
+| PUT | `/api/me/library/{slug}` | Статус на полке; `null` — убрать из библиотеки |
+| PUT | `/api/me/progress/{slug}` | Место, на котором остановились в тайтле |
 
-- **URL**: `/api/manga/update`
-- **Method**: `POST`
-- **Request Body**:
-  ```json
-  {
-    "id": 1,
-    "title": "One Piece",
-    "author": "Eiichiro Oda",
-    "genre": "Shonen",
-    "description": "Updated description",
-    "rating": 4.6,
-    "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "id": 1,
-    "title": "One Piece",
-    "author": "Eiichiro Oda",
-    "genre": "Shonen",
-    "description": "Updated description",
-    "rating": 4.6,
-    "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-  }
-  ```
+## Разработка
 
-### Delete Manga
+```bash
+cd Mangaverse && mvn verify
+```
 
-- **URL**: `/api/manga/delete/{mangaId}`
-- **Method**: `DELETE`
-- **Response**: `204 No Content`
+71 тест (контроллеры, безопасность, синхронизация, загрузка, сервисы) работает без базы данных. CI в `.github/workflows/ci.yml` проверяет синтаксис JS и запускает `mvn verify`.
 
-### Get Manga by ID
+Добавили обложки — сгенерируйте варианты:
 
-- **URL**: `/api/manga/{id}`
-- **Method**: `GET`
-- **Response**:
-  ```json
-  {
-    "id": 1,
-    "title": "One Piece",
-    "author": "Eiichiro Oda",
-    "genre": "Shonen",
-    "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-    "rating": 4.5,
-    "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-  }
-  ```
+```bash
+python3 Mangaverse/scripts/optimize_covers.py
+```
 
-### Search Manga
+## Авторы
 
-- **URL**: `/api/manga/search`
-- **Method**: `GET`
-- **Query Parameters**: `query`
-- **Response**:
-  ```json
-  [
-    {
-      "id": 1,
-      "title": "One Piece",
-      "author": "Eiichiro Oda",
-      "genre": "Shonen",
-      "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-      "rating": 4.5,
-      "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-    }
-  ]
-  ```
-
-### Get Popular Manga
-
-- **URL**: `/api/manga/popular`
-- **Method**: `GET`
-- **Response**:
-  ```json
-  [
-    {
-      "id": 1,
-      "title": "One Piece",
-      "author": "Eiichiro Oda",
-      "genre": "Shonen",
-      "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-      "rating": 4.5,
-      "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-    }
-  ]
-  ```
-
-### Get Manga by Genre
-
-- **URL**: `/api/manga/genre/{genre}`
-- **Method**: `GET`
-- **Response**:
-  ```json
-  [
-    {
-      "id": 1,
-      "title": "One Piece",
-      "author": "Eiichiro Oda",
-      "genre": "Shonen",
-      "description": "Monkey D. Luffy is a young pirate with a dream: to prove the legend true and be the Pirate King.",
-      "rating": 4.5,
-      "imageUrl": "http://localhost:8080/images/one_piece_cover_page.jpg"
-    }
-  ]
-  ```
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
+Jalgas Arnat, Almassov Aidyn. Лицензия MIT.

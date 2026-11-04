@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ошибка', null)}"></head>
+<body th:data-icons="@{/img/icons.svg}">
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container error-page">
+    <p class="error-page__code"><span th:text="${status}">500</span></p>
+    <h1 class="t-large">Ошибка</h1>
+    <p>Что-то пошло не так. Попробуйте обновить страницу чуть позже.</p>
+    <a class="btn btn--filled" th:href="@{/}">На главную</a>
+</main>
+
+<nav th:replace="~{fragments/layout :: tabbar}"></nav>
+<dialog th:replace="~{fragments/layout :: spotlight}"></dialog>
+</body>
+</html>

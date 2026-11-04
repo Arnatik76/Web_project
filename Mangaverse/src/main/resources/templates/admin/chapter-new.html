@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Загрузка главы', null)}"></head>
+<body th:data-icons="@{/img/icons.svg}">
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <div class="auth">
+        <div class="auth__head">
+            <h1 class="t-large">Новая глава</h1>
+            <p class="t-caption">JPEG, PNG или WebP до 15 МБ. Страницы сортируются по имени файла: 2.jpg идёт перед 10.jpg.</p>
+        </div>
+
+        <p class="alert" th:if="${error != null}" th:text="${error}" role="alert">Ошибка</p>
+
+        <form class="form" method="post" th:action="@{/admin/chapters}" enctype="multipart/form-data" data-upload>
+            <div class="form__field">
+                <label class="form__label" for="manga">Тайтл</label>
+                <select class="form__input" id="manga" name="manga" required>
+                    <option th:each="t : ${titles}" th:value="${t.slug}" th:text="${t.title}"
+                            th:selected="${t.slug == selected}">Title</option>
+                </select>
+            </div>
+            <div class="form__field">
+                <label class="form__label" for="number">Номер главы</label>
+                <input class="form__input" id="number" name="number" inputmode="decimal" pattern="\d{1,5}(\.\d)?"
+                       placeholder="12 или 12.5" required>
+            </div>
+            <div class="form__field">
+                <label class="form__label" for="title">Название <span class="t-caption">— необязательно</span></label>
+                <input class="form__input" id="title" name="title" maxlength="200">
+            </div>
+            <label class="dropzone" data-dropzone>
+                <svg th:replace="~{fragments/layout :: icon('upload')}"></svg>
+                <span data-dropzone-label>Выберите или перетащите страницы</span>
+                <input type="file" name="pages" accept="image/jpeg,image/png,image/webp" multiple required>
+            </label>
+            <button class="btn btn--filled" type="submit">Загрузить</button>
+        </form>
+    </div>
+</main>
+
+<nav th:replace="~{fragments/layout :: tabbar}"></nav>
+<dialog th:replace="~{fragments/layout :: spotlight}"></dialog>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Нет соединения — MangaVerse</title>
+    <meta name="theme-color" content="#0B0B0C">
+    <style>
+        /* Self-contained: this page must work with nothing else cached. */
+        :root { color-scheme: dark; }
+        body {
+            margin: 0; min-height: 100dvh; display: grid; place-items: center;
+            padding: 24px; box-sizing: border-box; text-align: center;
+            background: #0B0B0C; color: rgba(255, 255, 255, 0.94);
+            font: 400 16px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
+        }
+        main { display: grid; gap: 12px; justify-items: center; max-width: 360px; }
+        .mark { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center;
+                background: linear-gradient(145deg, #FFB07A, #FF8A4C 55%, #E8622A); color: #1A0D05; font: 700 28px/1 inherit; }
+        h1 { margin: 8px 0 0; font-size: 26px; letter-spacing: -0.02em; }
+        p { margin: 0; color: rgba(235, 235, 245, 0.62); }
+        a, button { margin-top: 12px; height: 44px; padding: 0 20px; border: 0; border-radius: 999px;
+                    background: #FF8A4C; color: #1A0D05; font: 600 15px/44px inherit; text-decoration: none; cursor: pointer; }
+        a.secondary { background: rgba(255, 255, 255, 0.07); color: rgba(255, 255, 255, 0.94); }
+    </style>
+</head>
+<body>
+<main>
+    <div class="mark" aria-hidden="true">M</div>
+    <h1>Нет соединения</h1>
+    <p>Эта страница не сохранена на устройстве. Главы, которые вы сохранили офлайн, по-прежнему открываются.</p>
+    <button type="button" onclick="location.reload()">Повторить</button>
+    <a class="secondary" href="/library">Библиотека</a>
+</main>
+</body>
+</html>

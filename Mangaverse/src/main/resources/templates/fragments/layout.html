@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- Shared building blocks. Every page includes head, header, spotlight, tabbar and footer. -->
+
+<head th:fragment="head(pageTitle, pageDescription)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title th:text="${pageTitle != null} ? ${pageTitle + ' — MangaVerse'} : 'MangaVerse — манга и манхва'">MangaVerse</title>
+    <meta name="description" th:content="${pageDescription != null} ? ${pageDescription} : 'Минималистичный каталог и читалка манги и манхвы.'">
+    <meta name="theme-color" content="#0B0B0C" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#F5F5F7" media="(prefers-color-scheme: light)">
+    <!-- Apply the saved theme before first paint, so there is no flash. -->
+    <script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('mv-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+    <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
+    <link rel="apple-touch-icon" th:href="@{/img/apple-touch-icon.png}">
+    <link rel="manifest" th:href="@{/manifest.webmanifest}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="MangaVerse">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}">
+    <link rel="stylesheet" th:href="@{/css/pages.css}">
+    <!-- Account state for sync.js. The CSRF token is only rendered for signed-in users,
+         so anonymous visitors never get a session just for browsing. -->
+    <meta name="mv-user" th:content="${#authorization.expression('isAuthenticated()')} ? '1' : '0'">
+    <th:block sec:authorize="isAuthenticated()">
+        <meta name="_csrf" th:content="${_csrf.token}">
+        <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    </th:block>
+    <script th:src="@{/js/sync.js}" defer></script>
+    <script th:src="@{/js/sheets.js}" defer></script>
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+
+<body>
+
+<svg th:fragment="icon(name)" class="icon" aria-hidden="true" focusable="false"><use th:href="@{/img/icons.svg} + '#' + ${name}"></use></svg>
+
+<header th:fragment="header" class="header" data-header>
+    <div class="container header__inner">
+        <a class="logo" th:href="@{/}" aria-label="MangaVerse — на главную">
+            <span class="logo__mark" aria-hidden="true">M</span>
+            <span>Manga<span class="logo__accent">Verse</span></span>
+        </a>
+        <span class="header__title" data-header-title aria-hidden="true"></span>
+        <nav class="nav" aria-label="Основная навигация">
+            <a class="nav__link" th:href="@{/}" th:attr="aria-current=${nav == 'home' ? 'page' : null}">Главная</a>
+            <a class="nav__link" th:href="@{/catalog}" th:attr="aria-current=${nav == 'catalog' ? 'page' : null}">Каталог</a>
+            <a class="nav__link" th:href="@{/library}" th:attr="aria-current=${nav == 'library' ? 'page' : null}">Библиотека</a>
+        </nav>
+        <div class="header__actions">
+            <button class="search-trigger" type="button" data-search-open aria-keyshortcuts="Meta+K Control+K">
+                <svg th:replace="~{fragments/layout :: icon('search')}"></svg>
+                <span class="search-trigger__label">Поиск</span>
+                <kbd class="kbd" data-kbd-mod>⌘K</kbd>
+            </button>
+            <button class="icon-btn search-icon-btn" type="button" data-search-open aria-label="Поиск">
+                <svg th:replace="~{fragments/layout :: icon('search')}"></svg>
+            </button>
+            <a class="avatar" sec:authorize="isAuthenticated()" th:href="@{/library}"
+               th:aria-label="|Аккаунт: ${#authentication.principal.displayName}|"
+               th:text="${#strings.toUpperCase(#strings.substring(#authentication.principal.displayName, 0, 1))}">A</a>
+            <a class="btn btn--tinted btn--small header__signin" sec:authorize="!isAuthenticated()" th:href="@{/login}">Войти</a>
+            <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-label="Сменить тему">
+                <svg class="icon icon--sun" aria-hidden="true"><use th:href="@{/img/icons.svg} + '#sun'"></use></svg>
+                <svg class="icon icon--moon" aria-hidden="true"><use th:href="@{/img/icons.svg} + '#moon'"></use></svg>
+            </button>
+        </div>
+    </div>
+</header>
+
+<nav th:fragment="tabbar" class="tabbar" aria-label="Навигация">
+    <a class="tabbar__item" th:href="@{/}" th:attr="aria-current=${nav == 'home' ? 'page' : null}">
+        <svg th:replace="~{fragments/layout :: icon('home')}"></svg>Главная
+    </a>
+    <a class="tabbar__item" th:href="@{/catalog}" th:attr="aria-current=${nav == 'catalog' ? 'page' : null}">
+        <svg th:replace="~{fragments/layout :: icon('grid')}"></svg>Каталог
+    </a>
+    <a class="tabbar__item" th:href="@{/library}" th:attr="aria-current=${nav == 'library' ? 'page' : null}">
+        <svg th:replace="~{fragments/layout :: icon('bookmark')}"></svg>Библиотека
+    </a>
+    <button class="tabbar__item" type="button" data-search-open>
+        <svg th:replace="~{fragments/layout :: icon('search')}"></svg>Поиск
+    </button>
+</nav>
+
+<dialog th:fragment="spotlight" class="spotlight" data-spotlight aria-label="Поиск по каталогу">
+    <form class="spotlight__bar" method="get" th:action="@{/catalog}" role="search">
+        <svg th:replace="~{fragments/layout :: icon('search')}"></svg>
+        <input class="spotlight__input" type="search" name="q" placeholder="Название, автор или жанр"
+               autocomplete="off" spellcheck="false" autofocus
+               role="combobox" aria-expanded="true" aria-controls="spotlight-results" aria-autocomplete="list">
+        <button class="icon-btn" type="button" data-spotlight-close aria-label="Закрыть поиск">
+            <svg th:replace="~{fragments/layout :: icon('x')}"></svg>
+        </button>
+    </form>
+    <div class="spotlight__body" id="spotlight-results" role="listbox" aria-label="Результаты" data-spotlight-results></div>
+    <div class="spotlight__foot" aria-hidden="true">
+        <span><kbd class="kbd">↑</kbd><kbd class="kbd">↓</kbd> выбрать</span>
+        <span><kbd class="kbd">↵</kbd> открыть</span>
+        <span><kbd class="kbd">esc</kbd> закрыть</span>
+    </div>
+</dialog>
+
+<footer th:fragment="footer" class="footer">
+    <div class="container footer__inner">
+        <p>© 2024–2026 MangaVerse</p>
+        <p>
+            Сделали
+            <a href="https://www.instagram.com/zhalgas_arnat/" target="_blank" rel="noopener">Jalgas Arnat</a>
+            и
+            <a href="https://www.instagram.com/keshegiai/" target="_blank" rel="noopener">Almassov Aidyn</a>
+        </p>
+    </div>
+</footer>
+
+<!-- Responsive cover: AVIF, then WebP, then the original.
+     Named coverImage, not picture: a fragment selector also matches elements by tag name. -->
+<picture th:fragment="coverImage(url, sizes, alt, eager)">
+    <source type="image/avif" th:if="${@covers.srcset(url, 'avif') != null}" th:srcset="${@covers.srcset(url, 'avif')}" th:sizes="${sizes}">
+    <source type="image/webp" th:if="${@covers.srcset(url, 'webp') != null}" th:srcset="${@covers.srcset(url, 'webp')}" th:sizes="${sizes}">
+    <!-- Two branches because Thymeleaf drops an attribute whose computed value is empty,
+         and decorative images need a literal alt="" to stay invisible to screen readers. -->
+    <img th:if="${#strings.isEmpty(alt)}" th:src="@{${url}}" alt="" width="375" height="562" decoding="async"
+         th:attr="loading=${eager ? 'eager' : 'lazy'}, fetchpriority=${eager ? 'high' : null}">
+    <img th:unless="${#strings.isEmpty(alt)}" th:src="@{${url}}" th:alt="${alt}" width="375" height="562" decoding="async"
+         th:attr="loading=${eager ? 'eager' : 'lazy'}, fetchpriority=${eager ? 'high' : null}">
+</picture>
+
+<!-- Cover card: alt is empty because the title is printed right below the image. -->
+<a th:fragment="card(m)" class="card" th:href="@{/title/{slug}(slug=${m.slug})}">
+    <div class="cover">
+        <picture th:replace="~{fragments/layout :: coverImage(${m.imageUrl}, '(min-width: 720px) 176px, 42vw', '', false)}"></picture>
+    </div>
+    <h3 class="card__title" th:text="${m.title}">Title</h3>
+    <p class="meta">
+        <span th:text="${m.type.label}">Манга</span>
+        <span class="rating" th:aria-label="|Рейтинг ${#numbers.formatDecimal(m.rating, 1, 1, 'POINT')}|">
+            <svg th:replace="~{fragments/layout :: icon('star')}"></svg>
+            <span th:text="${#numbers.formatDecimal(m.rating, 1, 1, 'POINT')}">4.9</span>
+        </span>
+    </p>
+</a>
+
+<section th:fragment="shelf(heading, items, moreUrl)" class="section shelf" data-shelf>
+    <div class="container">
+        <div class="shelf__head">
+            <h2 class="t-title" th:text="${heading}">Shelf</h2>
+            <a class="link-more" th:if="${moreUrl != null}" th:href="${moreUrl}">
+                Все<svg th:replace="~{fragments/layout :: icon('chevron-right')}"></svg>
+            </a>
+            <div class="shelf__arrows">
+                <button class="icon-btn" type="button" data-shelf-prev aria-label="Прокрутить назад" disabled>
+                    <svg th:replace="~{fragments/layout :: icon('chevron-left')}"></svg>
+                </button>
+                <button class="icon-btn" type="button" data-shelf-next aria-label="Прокрутить вперёд">
+                    <svg th:replace="~{fragments/layout :: icon('chevron-right')}"></svg>
+                </button>
+            </div>
+        </div>
+        <div class="shelf__track" data-shelf-track>
+            <th:block th:each="m : ${items}"><a th:replace="~{fragments/layout :: card(${m})}"></a></th:block>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

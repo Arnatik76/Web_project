@@ -1,99 +1,81 @@
 package org.example.mangaverse.controllers;
 
+import java.net.URI;
 import java.util.List;
-import java.util.logging.Logger;
 
-import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
+
 import org.example.mangaverse.exceptions.MangaNotFoundException;
+import org.example.mangaverse.models.Chapter;
 import org.example.mangaverse.models.Manga;
 import org.example.mangaverse.services.MangaService;
+import org.example.mangaverse.services.ReaderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/manga")
 public class MangaApiController {
 
-    private static final Logger logger = Logger.getLogger(MangaApiController.class.getName());
-    private final MangaService mangaService;
+    private static final Logger log = LoggerFactory.getLogger(MangaApiController.class);
 
-    public MangaApiController(MangaService mangaService) {
+    private final MangaService mangaService;
+    private final ReaderService readerService;
+
+    public MangaApiController(MangaService mangaService, ReaderService readerService) {
         this.mangaService = mangaService;
+        this.readerService = readerService;
     }
 
-    @GetMapping("/{mangaId}")
-    public ResponseEntity<Manga> getManga(@PathVariable Long mangaId) {
-        logger.info("GET /api/manga/" + mangaId);
-        Manga manga = mangaService.getMangaById(mangaId);
-        if (manga == null) {
-            logger.info("Manga not found with id: " + mangaId);
-            throw new MangaNotFoundException();
-        } else {
-            logger.info("Manga found: " + manga);
-        }
+    @GetMapping("/{id}")
+    public Manga getManga(@PathVariable long id) {
+        return mangaService.findById(id).orElseThrow(() -> new MangaNotFoundException(id));
+    }
 
-        return ResponseEntity.ok(manga);
+    @GetMapping("/{id}/chapters")
+    public List<Chapter> getChapters(@PathVariable long id) {
+        return readerService.chapters(getManga(id));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Manga>> getAllManga() {
-        logger.info("GET /api/manga/all");
-        List<Manga> mangaList = mangaService.getAllManga();
-        if (mangaList.isEmpty()) {
-            logger.info("No manga found");
-        } else {
-            logger.info("Manga found: " + mangaList.size());
-        }
-
-        return ResponseEntity.ok(mangaList);
+    public List<Manga> getAll() {
+        return mangaService.popular();
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<List<Manga>> getPopularManga() {
-        logger.info("GET /api/manga/popular");
-        List<Manga> mangaList = mangaService.getPopularManga();
-        if (mangaList.isEmpty()) {
-            logger.info("No manga found");
-        } else {
-            logger.info("Manga found: " + mangaList.size());
-        }
-
-        return ResponseEntity.ok(mangaList);
+    public List<Manga> getPopular() {
+        return mangaService.popular();
     }
 
     @GetMapping("/genre")
-    public ResponseEntity<List<Manga>> getMangaByGenre(@RequestParam String genre) {
-        logger.info("GET /api/manga/genre?genre=" + genre);
-        List<Manga> mangaList = mangaService.getMangaByGenre(genre);
-        if (mangaList.isEmpty()) {
-            logger.info("No manga found");
-        } else {
-            logger.info("Manga found: " + mangaList.size());
-        }
+    public List<Manga> getByGenre(@RequestParam String genre) {
+        return mangaService.byGenre(genre);
+    }
 
-        return ResponseEntity.ok(mangaList);
+    @GetMapping("/genres")
+    public List<String> getGenres() {
+        return mangaService.genres();
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Manga>> searchManga(@RequestParam String query) {
-        logger.info("GET /api/manga/search?query=" + query);
-        List<Manga> mangaList = mangaService.searchManga(query);
-        if (mangaList.isEmpty()) {
-            logger.info("No manga found");
-        } else {
-            logger.info("Manga found: " + mangaList.size());
-        }
-
-        return ResponseEntity.ok(mangaList);
+    public List<Manga> search(@RequestParam(name = "query", required = false) String query,
+                              @RequestParam(name = "q", required = false) String q) {
+        return mangaService.search(query != null ? query : q);
     }
 
+    /** Requires the X-Admin-Token header, see {@code AdminTokenInterceptor}. */
     @PostMapping("/new")
-    @Validated
-    public ResponseEntity<Manga> addManga(@Valid @RequestBody Manga manga) {
-        logger.info("POST /api/manga/new");
-        mangaService.addManga(manga);
-        return ResponseEntity.ok(manga);
+    public ResponseEntity<Manga> addManga(@Valid @RequestBody NewMangaRequest request) {
+        Manga saved = mangaService.add(request.toManga());
+        log.info("Added manga id={} title={}", saved.id(), saved.title());
+        return ResponseEntity.created(URI.create("/api/manga/" + saved.id())).body(saved);
     }
-
 }

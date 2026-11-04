@@ -1,0 +1,23 @@
+{
+  "id": "/",
+  "name": "MangaVerse — манга и манхва",
+  "short_name": "MangaVerse",
+  "description": "Минималистичная читалка манги и манхвы",
+  "lang": "ru",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0B0B0C",
+  "theme_color": "#0B0B0C",
+  "categories": ["books", "entertainment"],
+  "icons": [
+    { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Библиотека", "url": "/library", "icons": [{ "src": "/img/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Каталог", "url": "/catalog", "icons": [{ "src": "/img/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
